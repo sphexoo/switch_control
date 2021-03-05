@@ -1,8 +1,5 @@
 import tkinter as tk
 import serial as ser
-from hauptbahnhof import Hauptbahnhof
-from schattenbahnhof import Schattenbahnhof
-from nebenbahnhof import Nebenbahnhof
 from window import Window
 
 

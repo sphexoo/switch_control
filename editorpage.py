@@ -1,16 +1,10 @@
 import tkinter as tk
+from tkinter import filedialog
 import json
 from grid import Grid
 from selector import Selector
 from line import Line
-
-class Page(tk.Frame):
-    def __init__(self, master):
-        super().__init__(master)
-        self.master = master
-
-    def show(self):
-        self.lift()
+from page import Page
 
 
 class EditorPage(Page):
@@ -36,12 +30,14 @@ class EditorPage(Page):
         data = {"lines": []}
         for line in self.lines:
             data["lines"].append(line.getPoints())
-        with open('data.json', 'w') as f:
+        directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
+        with open(directory, 'w') as f:
             json.dump(data, f)
 
     def loadFromJson(self):
         # load data from file 
-        with open('data.json', 'r') as f:
+        directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        with open(directory, 'r') as f:
             data = json.load(f)
         # delete current line objects from canvas
         for line in self.lines:
@@ -72,13 +68,6 @@ class EditorPage(Page):
                 self.lines.append(Line(self.canvas, startX, startY, endX, endY))
                 self.selector1.hide()
                 self.selector2.hide()
-
         elif (event.num == 3):
             self.selector1.hide()
             self.selector2.hide()
-
-            
-
-        
-        
-

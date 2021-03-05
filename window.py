@@ -1,5 +1,5 @@
 import tkinter as tk
-from pages import EditorPage
+from editorpage import EditorPage
 
 
 class Window(tk.Frame):
@@ -20,8 +20,8 @@ class Window(tk.Frame):
         
         self.menu = tk.Menu(self.master)
         self.menu_file = tk.Menu(self.menu)
-        self.menu_file.add_command(label="Load", command=self.pages["editor"].loadFromJson)
-        self.menu_file.add_command(label="Save", command=self.pages["editor"].saveToJson)
+        self.menu_file.add_command(label="Open", command=self.pages["editor"].loadFromJson)
+        self.menu_file.add_command(label="Save as", command=self.pages["editor"].saveToJson)
         self.menu_file.add_command(label="Close")
         self.menu.add_cascade(label="File", menu=self.menu_file)
         self.master.config(menu=self.menu)
