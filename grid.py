@@ -23,7 +23,19 @@ class Grid:
     def getGridCoords(self, mX, mY):
         self.offsetX = self.master.winfo_width() / (self.numX + 1)
         self.offsetY = self.master.winfo_height() / (self.numY + 1)
-
         stepsX = round(mX / self.offsetX)
         stepsY = round(mY / self.offsetY)
-        return (stepsX * self.offsetX, stepsY * self.offsetY)
+        return stepsX * self.offsetX, stepsY * self.offsetY
+
+    def getGridPos(self, mX, mY):
+        self.offsetX = self.master.winfo_width() / (self.numX + 1)
+        self.offsetY = self.master.winfo_height() / (self.numY + 1)
+        stepsX = round(mX / self.offsetX)
+        stepsY = round(mY / self.offsetY)
+        return stepsX, stepsY
+
+    def getDimX(self):
+        return self.numX + 1
+    
+    def getDimY(self):
+        return self.numY + 1
