@@ -7,4 +7,16 @@ class Page(tk.Frame):
         self.master = master
 
     def show(self):
-        self.lift()
+        self.pack()
+
+    def hide(self):
+        self.pack_forget()
+
+    def onKeyPressed(self, event):
+        pass
+
+    def onMousePressed(self, event):
+        pass
+
+    def onResize(self, event):
+        pass

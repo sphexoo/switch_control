@@ -13,14 +13,12 @@ class ControlPage(Page):
         self.canvas = tk.Canvas(self.master,
                                 width=self.master.winfo_width(),
                                 height=self.master.winfo_height(),
-                                bg="grey",
+                                bg="green",
                                 borderwidth=0,
                                 highlightthickness=0)
-        self.canvas.grid()
-
+        self.canvas.pack()
         self.lines = []
 
-        self.canvas.addtag_all("all")
 
 
     def loadFromJson(self):
@@ -50,18 +48,5 @@ class ControlPage(Page):
         self.canvas.scale("all", 0, 0, width_new / width_old, height_new / height_old)
 
     def onMousePressed(self, event):
-        posX, posY = self.grid.getGridCoords(event.x, event.y)
         if (event.num == 1):
-            if not self.selector1.isActive():
-                self.selector1.moveTo(posX, posY)
-            elif not self.selector2.isActive():
-                self.selector2.moveTo(posX, posY)
-            elif self.selector1.isActive() and self.selector2.isActive():
-                startX, startY = self.selector1.getPosition()
-                endX, endY = self.selector2.getPosition()
-                self.lines.append(Line(self.canvas, startX, startY, endX, endY))
-                self.selector1.hide()
-                self.selector2.hide()
-        elif (event.num == 3):
-            self.selector1.hide()
-            self.selector2.hide()
+            print(event.x, event.y)

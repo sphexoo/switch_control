@@ -16,7 +16,7 @@ class EditorPage(Page):
                                 bg="grey",
                                 borderwidth=0,
                                 highlightthickness=0)
-        self.canvas.grid()
+        self.canvas.pack()
         self.grid = Grid(self.canvas, 20, 10)
 
         self.selector1 = Selector(self.canvas, self.grid, color="red")
@@ -26,7 +26,7 @@ class EditorPage(Page):
 
         self.canvas.addtag_all("all")
 
-    def clear(self):
+    def clearLines(self):
         # delete current line objects from canvas
         for line in self.lines:
             line.delete()
@@ -34,9 +34,12 @@ class EditorPage(Page):
 
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": [self.grid.getDimX(), self.grid.getDimY()], "lines": []}
+        data = {"dimensions": self.grid.getDimensions(), "lines": []}
         for line in self.lines:
-            data["lines"].append(line.getPoints())
+            x0, y0, x1, y1 = line.getPositions()
+            numX0, numX1 = self.grid.getGridNums(x0, y0)
+            numY0, numY1 = self.grid.getGridNums(x1, y1)
+            data["lines"].append([numX0, numX1, numY0, numY1])
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
             json.dump(data, f)
@@ -46,30 +49,35 @@ class EditorPage(Page):
         directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'r') as f:
             data = json.load(f)
-        self.clear()
+        self.clearLines()
         # add loaded line objects
         for line in data["lines"]:
-            self.lines.append(Line(self.canvas, self.grid, line[0], line[1], line[2], line[3]))
+            x0, y0 = self.grid.getPositionFromNum(line[0], line[1])
+            x1, y1 = self.grid.getPositionFromNum(line[2], line[3])
+            self.lines.append(Line(self.canvas, x0, y0, x1, y1))
 
     def onResize(self, event):
         width_old = self.canvas.winfo_width()
         height_old = self.canvas.winfo_height()
         width_new = self.master.winfo_width()
         height_new = self.master.winfo_height()
+
+        self.grid.onResize(width_new, height_new)
+
         self.canvas.config(width=width_new, height=height_new)
         self.canvas.scale("all", 0, 0, width_new / width_old, height_new / height_old)
 
     def onMousePressed(self, event):
-        numX, numY = self.grid.getGridPos(event.x, event.y)
+        posX, posY = self.grid.getPosition(event.x, event.y)
         if (event.num == 1):
             if not self.selector1.isActive():
-                self.selector1.moveTo(numX, numY)
+                self.selector1.setPosition(posX, posY)
             elif not self.selector2.isActive():
-                self.selector2.moveTo(numX, numY)
+                self.selector2.setPosition(posX, posY)
             elif self.selector1.isActive() and self.selector2.isActive():
-                startX, startY = self.selector1.getPosition()
-                endX, endY = self.selector2.getPosition()
-                self.lines.append(Line(self.canvas, self.grid, startX, startY, endX, endY))
+                x0, y0 = self.selector1.getPosition()
+                x1, y1 = self.selector2.getPosition()
+                self.lines.append(Line(self.canvas, x0, y0, x1, y1))
                 self.selector1.hide()
                 self.selector2.hide()
         elif (event.num == 3):
