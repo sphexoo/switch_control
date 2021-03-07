@@ -13,7 +13,7 @@ class ControlPage(Page):
         self.canvas = tk.Canvas(self.master,
                                 width=self.master.winfo_width(),
                                 height=self.master.winfo_height(),
-                                bg="green",
+                                bg="grey",
                                 borderwidth=0,
                                 highlightthickness=0)
         self.canvas.pack()
