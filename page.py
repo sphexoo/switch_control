@@ -1,17 +1,19 @@
 import tkinter as tk
 
 
-class Page(tk.Frame):
-    def __init__(self, master):
-        super().__init__(master)
+class Page():
+    def __init__(self, master, parent):
+        self.parent = parent
         self.master = master
-        self.canvas = None
+        self.frame = tk.Frame(master)
 
     def show(self):
-        self.canvas.pack()
+        print(len(self.canvas.find_all()))
+        self.master.config(menu=self.menu)
+        self.frame.pack()
 
     def hide(self):
-        self.canvas.pack_forget()
+        self.frame.pack_forget()
 
     def onKeyPressed(self, event):
         pass

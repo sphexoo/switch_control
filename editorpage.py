@@ -8,16 +8,27 @@ from page import Page
 
 
 class EditorPage(Page):
-    def __init__(self, master):
-        super().__init__(master)
-        self.canvas = tk.Canvas(self.master,
+    def __init__(self, master, parent):
+        super().__init__(master, parent)
+
+        self.menu = tk.Menu(self.frame)
+        self.menu_file = tk.Menu(self.menu)
+        self.menu_file.add_command(label="New", command=self.clearLines)
+        self.menu_file.add_command(label="Load", command=self.loadFromJson)
+        self.menu_file.add_command(label="Save as", command=self.saveToJson)
+        self.menu_file.add_command(label="Exit editor", command=self.parent.exitEditor)
+        self.menu.add_cascade(label="File", menu=self.menu_file)
+        self.master.config(menu=self.menu)
+
+        self.canvas = tk.Canvas(self.frame,
                                 width=self.master.winfo_width(),
                                 height=self.master.winfo_height(),
-                                bg="grey",
+                                bg="gray64",
                                 borderwidth=0,
                                 highlightthickness=0)
-        self.canvas.pack()
+        
         self.grid = Grid(self.canvas, 20, 10)
+        self.canvas.pack()
 
         self.selector1 = Selector(self.canvas, self.grid, color="red")
         self.selector2 = Selector(self.canvas, self.grid, color="green")

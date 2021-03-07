@@ -8,7 +8,7 @@ class Grid:
         self.canvas.update()
         self.offsetX = self.canvas.winfo_width() / (numX + 1)
         self.offsetY = self.canvas.winfo_height() / (numY + 1)
-        self.len_line = 7
+        self.len_line = 0.015
         self.ids = []
         self.draw()
 

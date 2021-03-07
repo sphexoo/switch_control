@@ -8,9 +8,18 @@ from page import Page
 
 
 class ControlPage(Page):
-    def __init__(self, master):
-        super().__init__(master)
-        self.canvas = tk.Canvas(self.master,
+    def __init__(self, master, parent):
+        super().__init__(master, parent)
+        
+        self.menu = tk.Menu(self.frame)
+        self.menu_file = tk.Menu(self.menu)
+        self.menu_file.add_command(label="Load", command=self.loadFromJson)
+        self.menu_file.add_command(label="Open editor", command=self.parent.openEditor)
+        self.menu.add_cascade(label="File", menu=self.menu_file)
+        self.master.config(menu=self.menu)
+
+
+        self.canvas = tk.Canvas(self.frame,
                                 width=self.master.winfo_width(),
                                 height=self.master.winfo_height(),
                                 bg="grey",
