@@ -15,32 +15,33 @@ class Window(tk.Frame):
         self.height = master.winfo_height()
 
         self.current_page = None
-        self.pages = {"c1": ControlPage(self.master, self), "c2": ControlPage(self.master, self), "editor": EditorPage(self.master, self)}
-        for name in self.pages:
-            if self.pages[name]:
-                self.pages[name].show()
-                self.pages[name].hide()
-        self.current_page = self.pages["c1"]
+        self.current_control = 0
+        
+        self.pages = [ControlPage(self.master, self), ControlPage(self.master, self)]
+        self.editor_page = EditorPage(self.master, self)
+        for page in self.pages:
+            page.show()
+            page.hide()
+        self.editor_page.show()
+        self.editor_page.hide()
+        self.current_page = self.pages[self.current_control]
         self.current_page.show()
 
         #self.serial = ser.Serial(baudrate=9600, port="COM1", timeout=2)
         #print(self.serial)
         #self.serial.write_timeout(3.0)
 
-    def setPage(self, name):
-        if not self.current_page == self.pages[name]:
+    def setPage(self, page):
+        if not self.current_page == page:
             self.current_page.hide()
-            self.current_page = self.pages[name]
+            self.current_page = page
             self.current_page.show()
     
     def exitEditor(self):
-        #del self.pages["editor"]
-        #self.pages["editor"] = None
-        self.setPage("c1")
+        self.setPage(self.pages[self.current_control])
     
     def openEditor(self):
-        #self.pages["editor"] = EditorPage(self.master, self)
-        self.setPage("editor")
+        self.setPage(self.editor_page)
     
     def loadFromJson(self):
         self.current_page.loadFromJson()
@@ -54,8 +55,10 @@ class Window(tk.Frame):
             self.current_page.onMousePressed(event)
 
     def onConfigure(self, event):
-        if self.current_page and (self.width != self.master.winfo_width() or self.height != self.master.winfo_height()):
-            self.width = self.master.winfo_width()
-            self.height = self.master.winfo_height()
+        width = self.master.winfo_width()
+        height = self.master.winfo_height()
+        if self.current_page and (self.width != width or self.height != height):
+            self.width = width
+            self.height = height
             self.current_page.onResize(event)
         

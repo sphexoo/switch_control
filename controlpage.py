@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog
 import json
 from grid import Grid
 from selector import Selector
@@ -16,6 +16,9 @@ class ControlPage(Page):
         self.menu_file.add_command(label="Load", command=self.loadFromJson)
         self.menu_file.add_command(label="Open editor", command=self.parent.openEditor)
         self.menu.add_cascade(label="File", menu=self.menu_file)
+        self.menu_customize = tk.Menu(self.menu)
+        self.menu_customize.add_command(label="Set line width", command=self.setLineWidth)
+        self.menu.add_cascade(label="Customize", menu=self.menu_customize)
         self.master.config(menu=self.menu)
 
         self.canvas = tk.Canvas(self.frame,
@@ -31,6 +34,8 @@ class ControlPage(Page):
         self.height = self.canvas.winfo_height()
 
         self.lines = []
+
+        self.line_width = 30
 
 
 
@@ -50,7 +55,7 @@ class ControlPage(Page):
             startY = line[1] / dim[1] * self.master.winfo_height()
             endX = line[2] / dim[0] * self.master.winfo_width()
             endY = line[3] / dim[1] * self.master.winfo_height()
-            self.lines.append(Line(self.canvas, startX, startY, endX, endY))
+            self.lines.append(Line(self.canvas, startX, startY, endX, endY, width=self.line_width))
 
     def onResize(self, event):
         self.master.update()
@@ -64,3 +69,11 @@ class ControlPage(Page):
     def onMousePressed(self, event):
         if (event.num == 1):
             print(event.x, event.y)
+
+    def setLineWidth(self):
+        user_input = simpledialog.askstring("Customize", "Line width")
+        if user_input.isdigit():
+            width = int(user_input)
+            self.line_width = width
+            for line in self.lines:
+                self.canvas.itemconfig(line.getId(), width=self.line_width)

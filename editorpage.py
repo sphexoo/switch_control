@@ -18,6 +18,10 @@ class EditorPage(Page):
         self.menu_file.add_command(label="Save as", command=self.saveToJson)
         self.menu_file.add_command(label="Exit editor", command=self.parent.exitEditor)
         self.menu.add_cascade(label="File", menu=self.menu_file)
+        self.menu_edit = tk.Menu(self.menu)
+        self.menu_edit.add_command(label="Undo", command=self.undo)
+        self.menu.add_cascade(label="Edit", menu=self.menu_edit)
+
         self.master.config(menu=self.menu)
 
         self.canvas = tk.Canvas(self.frame,
@@ -96,3 +100,8 @@ class EditorPage(Page):
         elif (event.num == 3):
             self.selector1.hide()
             self.selector2.hide()
+
+    def undo(self):
+        if len(self.lines) > 0:
+            self.canvas.delete(self.lines[-1].getId())
+            self.lines.pop()
