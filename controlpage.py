@@ -11,6 +11,8 @@ class ControlPage(Page):
     def __init__(self, master, parent):
         super().__init__(master, parent)
         
+        self.lineWidth = 30
+        
         self.menu = tk.Menu(self.frame)
         self.menu_file = tk.Menu(self.menu)
         self.menu_file.add_command(label="Load", command=self.loadFromJson)
@@ -35,8 +37,6 @@ class ControlPage(Page):
 
         self.lines = []
 
-        self.line_width = 30
-
 
 
     def loadFromJson(self):
@@ -55,7 +55,7 @@ class ControlPage(Page):
             startY = line[1] / dim[1] * self.master.winfo_height()
             endX = line[2] / dim[0] * self.master.winfo_width()
             endY = line[3] / dim[1] * self.master.winfo_height()
-            self.lines.append(Line(self.canvas, startX, startY, endX, endY, width=self.line_width))
+            self.lines.append(Line(self.canvas, startX, startY, endX, endY, width=self.lineWidth))
 
     def onResize(self, event):
         self.master.update()
@@ -72,8 +72,8 @@ class ControlPage(Page):
 
     def setLineWidth(self):
         user_input = simpledialog.askstring("Customize", "Line width")
-        if user_input.isdigit():
+        if user_input and user_input.isdigit():
             width = int(user_input)
-            self.line_width = width
+            self.lineWidth = width
             for line in self.lines:
-                self.canvas.itemconfig(line.getId(), width=self.line_width)
+                self.canvas.itemconfig(line.getId(), width=self.lineWidth)

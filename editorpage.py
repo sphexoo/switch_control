@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog
 import json
 from grid import Grid
 from selector import Selector
@@ -11,6 +11,10 @@ class EditorPage(Page):
     def __init__(self, master, parent):
         super().__init__(master, parent)
 
+        self.gridX = 20
+        self.gridY = 10
+        self.lineWidth = 10
+
         self.menu = tk.Menu(self.frame)
         self.menu_file = tk.Menu(self.menu)
         self.menu_file.add_command(label="New", command=self.clearLines)
@@ -20,6 +24,11 @@ class EditorPage(Page):
         self.menu.add_cascade(label="File", menu=self.menu_file)
         self.menu_edit = tk.Menu(self.menu)
         self.menu_edit.add_command(label="Undo", command=self.undo)
+        self.menu_customize = tk.Menu(self.menu)
+        self.menu_customize.add_command(label="Grid X", command=self.setGridX)
+        self.menu_customize.add_command(label="Grid Y", command=self.setGridY)
+        self.menu_customize.add_command(label="Set line width", command=self.setLineWidth)
+        self.menu.add_cascade(label="Customize", menu=self.menu_customize)
         self.menu.add_cascade(label="Edit", menu=self.menu_edit)
 
         self.master.config(menu=self.menu)
@@ -32,7 +41,7 @@ class EditorPage(Page):
                                 highlightthickness=0)
         
         self.canvas.pack()
-        self.grid = Grid(self.canvas, 20, 10)
+        self.grid = Grid(self.canvas, self.gridX, self.gridY)
 
         self.canvas.update()
         self.width = self.canvas.winfo_width()
@@ -73,7 +82,7 @@ class EditorPage(Page):
         for line in data["lines"]:
             x0, y0 = self.grid.getPositionFromNum(line[0], line[1])
             x1, y1 = self.grid.getPositionFromNum(line[2], line[3])
-            self.lines.append(Line(self.canvas, x0, y0, x1, y1))
+            self.lines.append(Line(self.canvas, x0, y0, x1, y1, self.lineWidth))
 
     def onResize(self, event):
         self.master.update()
@@ -94,7 +103,7 @@ class EditorPage(Page):
             elif self.selector1.isActive() and self.selector2.isActive():
                 x0, y0 = self.selector1.getPosition()
                 x1, y1 = self.selector2.getPosition()
-                self.lines.append(Line(self.canvas, x0, y0, x1, y1))
+                self.lines.append(Line(self.canvas, x0, y0, x1, y1, self.lineWidth))
                 self.selector1.hide()
                 self.selector2.hide()
         elif (event.num == 3):
@@ -105,3 +114,27 @@ class EditorPage(Page):
         if len(self.lines) > 0:
             self.canvas.delete(self.lines[-1].getId())
             self.lines.pop()
+        
+    def setGridX(self):
+        user_input = simpledialog.askstring("Customize", "Grid X")
+        if user_input and user_input.isdigit():
+            gridX = int(user_input)
+            self.gridX = gridX
+            self.grid.delete()
+            self.grid = Grid(self.canvas, self.gridX, self.gridY)
+
+    def setGridY(self):
+        user_input = simpledialog.askstring("Customize", "Grid Y")
+        if user_input and user_input.isdigit():
+            gridY = int(user_input)
+            self.gridY = gridY
+            self.grid.delete()
+            self.grid = Grid(self.canvas, self.gridX, self.gridY)
+
+    def setLineWidth(self):
+        user_input = simpledialog.askstring("Customize", "Line width")
+        if user_input and user_input.isdigit():
+            width = int(user_input)
+            self.lineWidth = width
+            for line in self.lines:
+                self.canvas.itemconfig(line.getId(), width=self.lineWidth)

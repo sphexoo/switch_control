@@ -6,7 +6,6 @@ class Page():
         self.parent = parent
         self.master = master
         self.frame = tk.Frame(master)
-        self.frame.pack()
 
     def show(self):
         self.master.config(menu=self.menu)
