@@ -18,7 +18,6 @@ class ControlPage(Page):
         self.menu.add_cascade(label="File", menu=self.menu_file)
         self.master.config(menu=self.menu)
 
-
         self.canvas = tk.Canvas(self.frame,
                                 width=self.master.winfo_width(),
                                 height=self.master.winfo_height(),
@@ -26,6 +25,11 @@ class ControlPage(Page):
                                 borderwidth=0,
                                 highlightthickness=0)
         self.canvas.pack()
+
+        self.canvas.update()
+        self.width = self.canvas.winfo_width()
+        self.height = self.canvas.winfo_height()
+
         self.lines = []
 
 
@@ -49,12 +53,13 @@ class ControlPage(Page):
             self.lines.append(Line(self.canvas, startX, startY, endX, endY))
 
     def onResize(self, event):
-        width_old = self.canvas.winfo_width()
-        height_old = self.canvas.winfo_height()
+        self.master.update()
         width_new = self.master.winfo_width()
         height_new = self.master.winfo_height()
         self.canvas.config(width=width_new, height=height_new)
-        self.canvas.scale("all", 0, 0, width_new / width_old, height_new / height_old)
+        self.canvas.scale("all", 0, 0, width_new / self.width, height_new / self.height)
+        self.width = width_new
+        self.height = height_new
 
     def onMousePressed(self, event):
         if (event.num == 1):

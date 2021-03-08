@@ -8,17 +8,18 @@ class Grid:
         self.canvas.update()
         self.offsetX = self.canvas.winfo_width() / (numX + 1)
         self.offsetY = self.canvas.winfo_height() / (numY + 1)
-        self.len_line = 0.015
         self.ids = []
         self.draw()
 
     def draw(self):
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
         for x in range(self.numX):
-            for y in range(self.numY):
-                pos_x = x * self.offsetX + self.offsetX
-                pos_y = y * self.offsetY + self.offsetY
-                self.ids.append(self.canvas.create_line(pos_x - self.len_line / 2, pos_y, pos_x + self.len_line / 2, pos_y, width=1, fill="black"))
-                self.ids.append(self.canvas.create_line(pos_x, pos_y - self.len_line /  2, pos_x, pos_y + self.len_line /  2, width=1, fill="black"))
+            pos_x = width * x * self.offsetX + self.offsetX
+            self.ids.append(self.canvas.create_line(pos_x, 0, pos_x, height, fill="gray50"))
+        for y in range(self.numY):
+            pos_y= height * y * self.offsetY + self.offsetY
+            self.ids.append(self.canvas.create_line(0, pos_y, width, pos_y, fill="gray50"))
         for id in self.ids:
             self.canvas.addtag_withtag("all", id)
             

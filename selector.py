@@ -4,7 +4,7 @@ class Selector():
         self.grid = grid
         self.posX = 0
         self.posY = 0
-        self.size = 25
+        self.size = 15
         self.color = color
 
         self.id = None

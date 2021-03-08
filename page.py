@@ -6,9 +6,9 @@ class Page():
         self.parent = parent
         self.master = master
         self.frame = tk.Frame(master)
+        self.frame.pack()
 
     def show(self):
-        print(len(self.canvas.find_all()))
         self.master.config(menu=self.menu)
         self.frame.pack()
 

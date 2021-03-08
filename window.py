@@ -15,7 +15,11 @@ class Window(tk.Frame):
         self.height = master.winfo_height()
 
         self.current_page = None
-        self.pages = {"c1": ControlPage(self.master, self), "c2": ControlPage(self.master, self), "editor": None}
+        self.pages = {"c1": ControlPage(self.master, self), "c2": ControlPage(self.master, self), "editor": EditorPage(self.master, self)}
+        for name in self.pages:
+            if self.pages[name]:
+                self.pages[name].show()
+                self.pages[name].hide()
         self.current_page = self.pages["c1"]
         self.current_page.show()
 
@@ -30,12 +34,12 @@ class Window(tk.Frame):
             self.current_page.show()
     
     def exitEditor(self):
-        del self.pages["editor"]
-        self.pages["editor"] = None
+        #del self.pages["editor"]
+        #self.pages["editor"] = None
         self.setPage("c1")
     
     def openEditor(self):
-        self.pages["editor"] = EditorPage(self.master, self)
+        #self.pages["editor"] = EditorPage(self.master, self)
         self.setPage("editor")
     
     def loadFromJson(self):

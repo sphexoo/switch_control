@@ -27,8 +27,12 @@ class EditorPage(Page):
                                 borderwidth=0,
                                 highlightthickness=0)
         
-        self.grid = Grid(self.canvas, 20, 10)
         self.canvas.pack()
+        self.grid = Grid(self.canvas, 20, 10)
+
+        self.canvas.update()
+        self.width = self.canvas.winfo_width()
+        self.height = self.canvas.winfo_height()
 
         self.selector1 = Selector(self.canvas, self.grid, color="red")
         self.selector2 = Selector(self.canvas, self.grid, color="green")
@@ -68,15 +72,13 @@ class EditorPage(Page):
             self.lines.append(Line(self.canvas, x0, y0, x1, y1))
 
     def onResize(self, event):
-        width_old = self.canvas.winfo_width()
-        height_old = self.canvas.winfo_height()
+        self.master.update()
         width_new = self.master.winfo_width()
         height_new = self.master.winfo_height()
-
-        self.grid.onResize(width_new, height_new)
-
         self.canvas.config(width=width_new, height=height_new)
-        self.canvas.scale("all", 0, 0, width_new / width_old, height_new / height_old)
+        self.canvas.scale("all", 0, 0, width_new / self.width, height_new / self.height)
+        self.width = width_new
+        self.height = height_new
 
     def onMousePressed(self, event):
         posX, posY = self.grid.getPosition(event.x, event.y)
