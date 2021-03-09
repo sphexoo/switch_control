@@ -5,6 +5,7 @@ from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
+from weiche import Weiche
 
 
 class EditorPage(Page):
@@ -14,22 +15,38 @@ class EditorPage(Page):
         self.gridX = 20
         self.gridY = 10
         self.lineWidth = 10
+        self.current_item = "Linie"
+
+        self.lines = []
+        self.weichen = []
+        self.gleise = []
 
         self.menu = tk.Menu(self.frame)
+
         self.menu_file = tk.Menu(self.menu)
         self.menu_file.add_command(label="New", command=self.clearLines)
         self.menu_file.add_command(label="Load", command=self.loadFromJson)
         self.menu_file.add_command(label="Save as", command=self.saveToJson)
         self.menu_file.add_command(label="Exit editor", command=self.parent.exitEditor)
         self.menu.add_cascade(label="File", menu=self.menu_file)
+
         self.menu_edit = tk.Menu(self.menu)
         self.menu_edit.add_command(label="Undo", command=self.undo)
+        self.menu.add_cascade(label="Edit", menu=self.menu_edit)
+
         self.menu_customize = tk.Menu(self.menu)
         self.menu_customize.add_command(label="Grid X", command=self.setGridX)
         self.menu_customize.add_command(label="Grid Y", command=self.setGridY)
         self.menu_customize.add_command(label="Set line width", command=self.setLineWidth)
         self.menu.add_cascade(label="Customize", menu=self.menu_customize)
-        self.menu.add_cascade(label="Edit", menu=self.menu_edit)
+
+
+        self.menu_insert = tk.Menu(self.menu)
+        self.menu_insert.add_command(label="Linie", command=lambda: self.setCurrentItem("Linie"))
+        self.menu_insert.add_command(label="Weiche", command=lambda: self.setCurrentItem("Weiche"))
+        self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
+        self.menu.add_cascade(label="Insert", menu=self.menu_insert)
+        
 
         self.master.config(menu=self.menu)
 
@@ -50,8 +67,6 @@ class EditorPage(Page):
         self.selector1 = Selector(self.canvas, self.grid, color="red")
         self.selector2 = Selector(self.canvas, self.grid, color="green")
 
-        self.lines = []
-
         self.canvas.addtag_all("all")
 
     def clearLines(self):
@@ -59,6 +74,11 @@ class EditorPage(Page):
         for line in self.lines:
             line.delete()
         self.lines = []
+
+    def setCurrentItem(self, item):
+        self.selector1.hide()
+        self.selector2.hide()
+        self.current_item = item
 
     def saveToJson(self):
         # saves line data to json file
@@ -94,6 +114,15 @@ class EditorPage(Page):
         self.height = height_new
 
     def onMousePressed(self, event):
+        if self.current_item == "Linie":
+            self.placeLinie(event)
+        elif self.current_item == "Weiche":
+            self.placeWeiche(event)
+        elif self.current_item == "Gleis":
+            self.placeGleis(event)
+        
+
+    def placeLinie(self, event):
         posX, posY = self.grid.getPosition(event.x, event.y)
         if (event.num == 1):
             if not self.selector1.isActive():
@@ -109,6 +138,21 @@ class EditorPage(Page):
         elif (event.num == 3):
             self.selector1.hide()
             self.selector2.hide()
+
+    def placeWeiche(self, event):
+        posX, posY = self.grid.getPosition(event.x, event.y)
+        if (event.num == 1):
+            if not self.selector1.isActive():
+                self.selector1.setPosition(posX, posY)
+            elif self.selector1.isActive():
+                x, y = self.selector1.getPosition()
+                self.weichen.append(Weiche(self.canvas, x, y))
+                self.selector1.hide()
+        elif (event.num == 3):
+            self.selector1.hide()
+
+    def placeGleis(self, event):
+        pass    
 
     def undo(self):
         if len(self.lines) > 0:
