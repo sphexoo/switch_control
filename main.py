@@ -5,7 +5,7 @@ from window import Window
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("640x480")
+    root.geometry("600x600")
     root.title("Weichensteuerung")
     root.update()
     app = Window(root)

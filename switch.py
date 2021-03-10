@@ -4,6 +4,6 @@ class Switch:
     self.src = src
     self.dst = dst
 
-  def toggle():
-      serial.write(src)
-      serial.write(dst)
+  def toggle(self):
+      self.serial.write(self.src)
+      self.serial.write(self.dst)

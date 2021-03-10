@@ -17,9 +17,9 @@ class EditorPage(Page):
         self.lineWidth = 10
         self.current_item = "Linie"
 
-        self.lines = []
-        self.weichen = []
-        self.gleise = []
+        self.lines = {}
+        self.weichen = {}
+        self.gleise = {}
 
         self.menu = tk.Menu(self.frame)
 
@@ -71,9 +71,9 @@ class EditorPage(Page):
 
     def clearLines(self):
         # delete current line objects from canvas
-        for line in self.lines:
-            line.delete()
-        self.lines = []
+        for key in self.lines:
+            self.lines[key].delete()
+        self.lines = {}
 
     def setCurrentItem(self, item):
         self.selector1.hide()
@@ -83,8 +83,8 @@ class EditorPage(Page):
     def saveToJson(self):
         # saves line data to json file
         data = {"dimensions": self.grid.getDimensions(), "lines": []}
-        for line in self.lines:
-            x0, y0, x1, y1 = line.getPositions()
+        for key in self.lines:
+            x0, y0, x1, y1 = self.lines[key].getPositions()
             numX0, numX1 = self.grid.getGridNums(x0, y0)
             numY0, numY1 = self.grid.getGridNums(x1, y1)
             data["lines"].append([numX0, numX1, numY0, numY1])
@@ -102,7 +102,7 @@ class EditorPage(Page):
         for line in data["lines"]:
             x0, y0 = self.grid.getPositionFromNum(line[0], line[1])
             x1, y1 = self.grid.getPositionFromNum(line[2], line[3])
-            self.lines.append(Line(self.canvas, x0, y0, x1, y1, self.lineWidth))
+            self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
 
     def onResize(self, event):
         self.master.update()
@@ -132,7 +132,8 @@ class EditorPage(Page):
             elif self.selector1.isActive() and self.selector2.isActive():
                 x0, y0 = self.selector1.getPosition()
                 x1, y1 = self.selector2.getPosition()
-                self.lines.append(Line(self.canvas, x0, y0, x1, y1, self.lineWidth))
+                if not (((x0, y0), (x1, y1)) in self.lines or ((x1, y1), (x0, y0)) in self.lines):
+                    self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
                 self.selector1.hide()
                 self.selector2.hide()
         elif (event.num == 3):
@@ -146,7 +147,10 @@ class EditorPage(Page):
                 self.selector1.setPosition(posX, posY)
             elif self.selector1.isActive():
                 x, y = self.selector1.getPosition()
-                self.weichen.append(Weiche(self.canvas, x, y))
+                if not (x, y) in self.weichen:
+                    self.weichen[(x, y)] = Weiche(self.canvas, x, y)
+                else:
+                    self.weichen[(x, y)].changeDirections()
                 self.selector1.hide()
         elif (event.num == 3):
             self.selector1.hide()
@@ -155,9 +159,10 @@ class EditorPage(Page):
         pass    
 
     def undo(self):
-        if len(self.lines) > 0:
-            self.canvas.delete(self.lines[-1].getId())
-            self.lines.pop()
+        pass
+        #if len(self.lines) > 0:
+        #    self.canvas.delete(self.lines[-1].getId())
+        #    self.lines.pop()
         
     def setGridX(self):
         user_input = simpledialog.askstring("Customize", "Grid X")
@@ -180,5 +185,5 @@ class EditorPage(Page):
         if user_input and user_input.isdigit():
             width = int(user_input)
             self.lineWidth = width
-            for line in self.lines:
-                self.canvas.itemconfig(line.getId(), width=self.lineWidth)
+            for key in self.lines:
+                self.canvas.itemconfig(self.lines[key].getId(), width=self.lineWidth)
