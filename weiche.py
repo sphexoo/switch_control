@@ -1,13 +1,13 @@
 from math import cos, sin, pi, radians
 
 class Weiche:
-    def __init__(self, canvas, x, y):
+    def __init__(self, canvas, x, y, dir0=0, dir1=45):
         self.canvas = canvas
         self.x = x
         self.y = y
         self.state = 0
         self.size = 20
-        self.directions = [0, 45] 
+        self.directions = [dir0, dir1] 
         self.switches = []
 
         self.ids = []
@@ -39,3 +39,14 @@ class Weiche:
         
     def setSwitches(self, sw):
         self.switches = sw
+
+    def getPosition(self):
+        return self.x, self.y
+    
+    def getDirections(self):
+        return self.directions[0], self.directions[1]
+
+    def delete(self):
+        for id in self.ids:
+            self.canvas.delete(id)
+        self.ids = []

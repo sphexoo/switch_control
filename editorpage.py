@@ -24,7 +24,7 @@ class EditorPage(Page):
         self.menu = tk.Menu(self.frame)
 
         self.menu_file = tk.Menu(self.menu)
-        self.menu_file.add_command(label="New", command=self.clearLines)
+        self.menu_file.add_command(label="New", command=self.clearCanvas)
         self.menu_file.add_command(label="Load", command=self.loadFromJson)
         self.menu_file.add_command(label="Save as", command=self.saveToJson)
         self.menu_file.add_command(label="Exit editor", command=self.parent.exitEditor)
@@ -37,16 +37,14 @@ class EditorPage(Page):
         self.menu_customize = tk.Menu(self.menu)
         self.menu_customize.add_command(label="Grid X", command=self.setGridX)
         self.menu_customize.add_command(label="Grid Y", command=self.setGridY)
-        self.menu_customize.add_command(label="Set line width", command=self.setLineWidth)
+        self.menu_customize.add_command(label="Line width", command=self.setLineWidth)
         self.menu.add_cascade(label="Customize", menu=self.menu_customize)
-
 
         self.menu_insert = tk.Menu(self.menu)
         self.menu_insert.add_command(label="Linie", command=lambda: self.setCurrentItem("Linie"))
         self.menu_insert.add_command(label="Weiche", command=lambda: self.setCurrentItem("Weiche"))
         self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
         self.menu.add_cascade(label="Insert", menu=self.menu_insert)
-        
 
         self.master.config(menu=self.menu)
 
@@ -69,11 +67,14 @@ class EditorPage(Page):
 
         self.canvas.addtag_all("all")
 
-    def clearLines(self):
+    def clearCanvas(self):
         # delete current line objects from canvas
         for key in self.lines:
             self.lines[key].delete()
+        for key in self.weichen:
+            self.weichen[key].delete()
         self.lines = {}
+        self.weichen = {}
 
     def setCurrentItem(self, item):
         self.selector1.hide()
@@ -82,12 +83,18 @@ class EditorPage(Page):
 
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": self.grid.getDimensions(), "lines": []}
+        data = {"dimensions": self.grid.getDimensions(), "lines": [], "weichen": []}
         for key in self.lines:
             x0, y0, x1, y1 = self.lines[key].getPositions()
-            numX0, numX1 = self.grid.getGridNums(x0, y0)
-            numY0, numY1 = self.grid.getGridNums(x1, y1)
-            data["lines"].append([numX0, numX1, numY0, numY1])
+            numX0, numY0 = self.grid.getGridNums(x0, y0)
+            numX1, numY1 = self.grid.getGridNums(x1, y1)
+            data["lines"].append([numX0, numY0, numX1, numY1])
+        for key in self.weichen:
+            x, y = self.weichen[key].getPosition()
+            numX, numY = self.grid.getGridNums(x, y)
+            dir0, dir1 = self.weichen[key].getDirections()
+            data["weichen"].append([numX, numY, dir0, dir1])
+
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
             json.dump(data, f)
@@ -97,12 +104,17 @@ class EditorPage(Page):
         directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'r') as f:
             data = json.load(f)
-        self.clearLines()
+        self.clearCanvas()
         # add loaded line objects
         for line in data["lines"]:
             x0, y0 = self.grid.getPositionFromNum(line[0], line[1])
             x1, y1 = self.grid.getPositionFromNum(line[2], line[3])
             self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+        for weiche in data["weichen"]:
+            x, y = self.grid.getPositionFromNum(weiche[0], weiche[1])
+            self.weichen[(x, y)] = Weiche(self.canvas, x, y, weiche[2], weiche[3])
+
+
 
     def onResize(self, event):
         self.master.update()
