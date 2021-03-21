@@ -5,6 +5,7 @@ from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
+from weiche import Weiche
 
 
 class ControlPage(Page):
@@ -34,9 +35,11 @@ class ControlPage(Page):
         self.canvas.update()
         self.width = self.canvas.winfo_width()
         self.height = self.canvas.winfo_height()
+        self.gridX = 20
+        self.gridY = 10
 
         self.lines = []
-
+        self.weichen = {}
 
 
     def loadFromJson(self):
@@ -44,18 +47,35 @@ class ControlPage(Page):
         directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'r') as f:
             data = json.load(f)
-        # delete current line objects from canvas
+        # delete current objects from canvas
         for line in self.lines:
             line.delete()
         self.lines = []
+        for weiche in self.weichen:
+            weiche.delete()
+        self.weichen = {}
         # add loaded line objects
         dim = data["dimensions"]
-        for line in data["lines"]:
-            startX = line[0] / dim[0] * self.master.winfo_width()
-            startY = line[1] / dim[1] * self.master.winfo_height()
-            endX = line[2] / dim[0] * self.master.winfo_width()
-            endY = line[3] / dim[1] * self.master.winfo_height()
-            self.lines.append(Line(self.canvas, startX, startY, endX, endY, width=self.lineWidth))
+        self.gridX = dim[0]
+        self.gridY = dim[1]
+        if "lines" in data:
+            for line in data["lines"]:
+                startX = line[0] / dim[0] * self.master.winfo_width()
+                startY = line[1] / dim[1] * self.master.winfo_height()
+                endX = line[2] / dim[0] * self.master.winfo_width()
+                endY = line[3] / dim[1] * self.master.winfo_height()
+                self.lines.append(Line(self.canvas, startX, startY, endX, endY, width=self.lineWidth))
+        if "weichen" in data:
+            for weiche in data["weichen"]:
+                x = weiche[0]
+                y = weiche[1]
+                posX = x / dim[0] * self.master.winfo_width()
+                posY = y / dim[1] * self.master.winfo_height()
+                dir0 = weiche[2]
+                dir1 = weiche[3]
+                self.weichen[(x, y)] = Weiche(self.canvas, posX, posY, dir0, dir1)
+
+
 
     def onResize(self, event):
         self.master.update()
@@ -66,9 +86,24 @@ class ControlPage(Page):
         self.width = width_new
         self.height = height_new
 
+        for x, y in self.weichen:
+            posX = x / self.gridX * self.master.winfo_width()
+            posY = y / self.gridY * self.master.winfo_height()
+            self.weichen[(x, y)].updatePosition(posX, posY)
+
+
     def onMousePressed(self, event):
-        if (event.num == 1):
-            print(event.x, event.y)
+        numX, numY = self.getGridNum(event.x, event.y)
+        if (numX, numY) in self.weichen:
+            self.weichen[(numX, numY)].toggle()
+
+    def getGridNum(self, mX, mY):
+        offsetX = self.canvas.winfo_width() / self.gridX
+        offsetY = self.canvas.winfo_height() / self.gridY
+        numX = round(mX / offsetX)
+        numY = round(mY / offsetY)
+        return numX, numY
+
 
     def setLineWidth(self):
         user_input = simpledialog.askstring("Customize", "Line width")

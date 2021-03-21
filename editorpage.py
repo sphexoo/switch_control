@@ -5,7 +5,7 @@ from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
-from weiche import Weiche
+from weiche import WeicheEditor
 
 
 class EditorPage(Page):
@@ -105,14 +105,18 @@ class EditorPage(Page):
         with open(directory, 'r') as f:
             data = json.load(f)
         self.clearCanvas()
+        # set grid size
+        self.setGrid(gridX=data["dimensions"][0], gridY=data["dimensions"][1])
         # add loaded line objects
-        for line in data["lines"]:
-            x0, y0 = self.grid.getPositionFromNum(line[0], line[1])
-            x1, y1 = self.grid.getPositionFromNum(line[2], line[3])
-            self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
-        for weiche in data["weichen"]:
-            x, y = self.grid.getPositionFromNum(weiche[0], weiche[1])
-            self.weichen[(x, y)] = Weiche(self.canvas, x, y, weiche[2], weiche[3])
+        if "lines" in data:
+            for line in data["lines"]:
+                x0, y0 = self.grid.getPositionFromNum(line[0], line[1])
+                x1, y1 = self.grid.getPositionFromNum(line[2], line[3])
+                self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+        if "weichen" in data:
+            for weiche in data["weichen"]:
+                x, y = self.grid.getPositionFromNum(weiche[0], weiche[1])
+                self.weichen[(x, y)] = WeicheEditor(self.canvas, x, y, weiche[2], weiche[3])
 
 
 
@@ -160,7 +164,7 @@ class EditorPage(Page):
             elif self.selector1.isActive():
                 x, y = self.selector1.getPosition()
                 if not (x, y) in self.weichen:
-                    self.weichen[(x, y)] = Weiche(self.canvas, x, y)
+                    self.weichen[(x, y)] = WeicheEditor(self.canvas, x, y)
                 else:
                     self.weichen[(x, y)].changeDirections()
                 self.selector1.hide()
@@ -175,22 +179,26 @@ class EditorPage(Page):
         #if len(self.lines) > 0:
         #    self.canvas.delete(self.lines[-1].getId())
         #    self.lines.pop()
-        
+    
+    def setGrid(self, gridX=None, gridY=None):
+        if gridX:
+            self.gridX = gridX
+        if gridY:
+            self.gridY = gridY
+        self.grid.delete()
+        self.grid = Grid(self.canvas, self.gridX, self.gridY)
+
     def setGridX(self):
         user_input = simpledialog.askstring("Customize", "Grid X")
         if user_input and user_input.isdigit():
             gridX = int(user_input)
-            self.gridX = gridX
-            self.grid.delete()
-            self.grid = Grid(self.canvas, self.gridX, self.gridY)
+            self.setGrid(gridX=gridX)
 
     def setGridY(self):
         user_input = simpledialog.askstring("Customize", "Grid Y")
         if user_input and user_input.isdigit():
             gridY = int(user_input)
-            self.gridY = gridY
-            self.grid.delete()
-            self.grid = Grid(self.canvas, self.gridX, self.gridY)
+            self.setGrid(gridY=gridY)
 
     def setLineWidth(self):
         user_input = simpledialog.askstring("Customize", "Line width")
