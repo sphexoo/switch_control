@@ -53,7 +53,7 @@ class WeicheEditor:
         self.y = y
         self.size = 20
         self.directions = [dir0, dir1] 
-        self.switches = []
+        self.switches = [-1, -1]
 
         self.ids = []
         self.display()
@@ -63,7 +63,8 @@ class WeicheEditor:
             self.canvas.delete(id)
         self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[0])), self.y + self.size * sin(radians(self.directions[0])), fill="red"))
         self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[1])), self.y + self.size * sin(radians(self.directions[1])), fill="red"))
-        
+        self.ids.append(self.canvas.create_text(self.x + 10, self.y + 10, text=str(self.switches), fill="white"))
+
     def changeDirections(self):
         self.directions[0] = (self.directions[0] + 45) % 360
         self.directions[1] = (self.directions[1] + 45) % 360

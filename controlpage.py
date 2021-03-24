@@ -35,11 +35,7 @@ class ControlPage(Page):
         self.canvas.update()
         self.width = self.canvas.winfo_width()
         self.height = self.canvas.winfo_height()
-        self.gridX = 20
-        self.gridY = 10
-
-        self.lines = []
-        self.weichen = {}
+        self.grid = Grid(self.canvas)
 
 
     def loadFromJson(self):
@@ -47,24 +43,18 @@ class ControlPage(Page):
         directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'r') as f:
             data = json.load(f)
-        # delete current objects from canvas
-        for line in self.lines:
-            line.delete()
-        self.lines = []
-        for weiche in self.weichen:
-            weiche.delete()
-        self.weichen = {}
+        self.clearCanvas()
         # add loaded line objects
         dim = data["dimensions"]
         self.gridX = dim[0]
         self.gridY = dim[1]
         if "lines" in data:
             for line in data["lines"]:
-                startX = line[0] / dim[0] * self.master.winfo_width()
-                startY = line[1] / dim[1] * self.master.winfo_height()
-                endX = line[2] / dim[0] * self.master.winfo_width()
-                endY = line[3] / dim[1] * self.master.winfo_height()
-                self.lines.append(Line(self.canvas, startX, startY, endX, endY, width=self.lineWidth))
+                x0 = line[0] / dim[0] * self.master.winfo_width()
+                y0 = line[1] / dim[1] * self.master.winfo_height()
+                x1 = line[2] / dim[0] * self.master.winfo_width()
+                y1 = line[3] / dim[1] * self.master.winfo_height()
+                self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, width=self.lineWidth)
         if "weichen" in data:
             for weiche in data["weichen"]:
                 x = weiche[0]
@@ -93,16 +83,9 @@ class ControlPage(Page):
 
 
     def onMousePressed(self, event):
-        numX, numY = self.getGridNum(event.x, event.y)
-        if (numX, numY) in self.weichen:
-            self.weichen[(numX, numY)].toggle()
-
-    def getGridNum(self, mX, mY):
-        offsetX = self.canvas.winfo_width() / self.gridX
-        offsetY = self.canvas.winfo_height() / self.gridY
-        numX = round(mX / offsetX)
-        numY = round(mY / offsetY)
-        return numX, numY
+        gridX, gridY = self.grid.getGridPosition(event.x, event.y)
+        if (gridX, gridY) in self.weichen:
+            self.weichen[(gridX, gridY)].toggle()
 
 
     def setLineWidth(self):

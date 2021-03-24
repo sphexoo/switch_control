@@ -12,14 +12,8 @@ class EditorPage(Page):
     def __init__(self, master, parent):
         super().__init__(master, parent)
 
-        self.gridX = 20
-        self.gridY = 10
         self.lineWidth = 10
         self.current_item = "Linie"
-
-        self.lines = {}
-        self.weichen = {}
-        self.gleise = {}
 
         self.menu = tk.Menu(self.frame)
 
@@ -56,7 +50,7 @@ class EditorPage(Page):
                                 highlightthickness=0)
         
         self.canvas.pack()
-        self.grid = Grid(self.canvas, self.gridX, self.gridY)
+        self.grid = Grid(self.canvas, isActive=True)
 
         self.canvas.update()
         self.width = self.canvas.winfo_width()
@@ -66,15 +60,6 @@ class EditorPage(Page):
         self.selector2 = Selector(self.canvas, self.grid, color="green")
 
         self.canvas.addtag_all("all")
-
-    def clearCanvas(self):
-        # delete current line objects from canvas
-        for key in self.lines:
-            self.lines[key].delete()
-        for key in self.weichen:
-            self.weichen[key].delete()
-        self.lines = {}
-        self.weichen = {}
 
     def setCurrentItem(self, item):
         self.selector1.hide()
@@ -86,12 +71,12 @@ class EditorPage(Page):
         data = {"dimensions": self.grid.getDimensions(), "lines": [], "weichen": []}
         for key in self.lines:
             x0, y0, x1, y1 = self.lines[key].getPositions()
-            numX0, numY0 = self.grid.getGridNums(x0, y0)
-            numX1, numY1 = self.grid.getGridNums(x1, y1)
+            numX0, numY0 = self.grid.getGridPosition(x0, y0)
+            numX1, numY1 = self.grid.getGridPosition(x1, y1)
             data["lines"].append([numX0, numY0, numX1, numY1])
         for key in self.weichen:
             x, y = self.weichen[key].getPosition()
-            numX, numY = self.grid.getGridNums(x, y)
+            numX, numY = self.grid.getGridPosition(x, y)
             dir0, dir1 = self.weichen[key].getDirections()
             data["weichen"].append([numX, numY, dir0, dir1])
 
@@ -131,14 +116,14 @@ class EditorPage(Page):
 
     def onMousePressed(self, event):
         if self.current_item == "Linie":
-            self.placeLinie(event)
+            self.handleLinie(event)
         elif self.current_item == "Weiche":
-            self.placeWeiche(event)
+            self.handleWeiche(event)
         elif self.current_item == "Gleis":
-            self.placeGleis(event)
+            self.handleGleis(event)
         
 
-    def placeLinie(self, event):
+    def handleLinie(self, event):
         posX, posY = self.grid.getPosition(event.x, event.y)
         if (event.num == 1):
             if not self.selector1.isActive():
@@ -156,8 +141,9 @@ class EditorPage(Page):
             self.selector1.hide()
             self.selector2.hide()
 
-    def placeWeiche(self, event):
+    def handleWeiche(self, event):
         posX, posY = self.grid.getPosition(event.x, event.y)
+        print(posX, posY)
         if (event.num == 1):
             if not self.selector1.isActive():
                 self.selector1.setPosition(posX, posY)
@@ -171,7 +157,7 @@ class EditorPage(Page):
         elif (event.num == 3):
             self.selector1.hide()
 
-    def placeGleis(self, event):
+    def handleGleis(self, event):
         pass    
 
     def undo(self):
@@ -181,12 +167,13 @@ class EditorPage(Page):
         #    self.lines.pop()
     
     def setGrid(self, gridX=None, gridY=None):
-        if gridX:
-            self.gridX = gridX
-        if gridY:
-            self.gridY = gridY
+        if not gridX:
+            gridX = self.grid.getGridX()
+        if not gridY:
+            gridY = self.grid.getGridY()
+        isActive = self.grid.getIsActive()
         self.grid.delete()
-        self.grid = Grid(self.canvas, self.gridX, self.gridY)
+        self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)
 
     def setGridX(self):
         user_input = simpledialog.askstring("Customize", "Grid X")
