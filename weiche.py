@@ -40,9 +40,9 @@ class Weiche:
             self.canvas.delete(id)
         self.ids = []
     
-    def updatePosition(self, posX, posY):
-        self.x = posX
-        self.y = posY
+    def updatePosition(self, x, y):
+        self.x = x
+        self.y = y
         self.display()
 
 
@@ -83,3 +83,8 @@ class WeicheEditor:
         for id in self.ids:
             self.canvas.delete(id)
         self.ids = []
+
+    def updatePosition(self, x, y):
+        self.x = x
+        self.y = y
+        self.display()

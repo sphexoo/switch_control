@@ -27,7 +27,7 @@ class ControlPage(Page):
         self.canvas = tk.Canvas(self.frame,
                                 width=self.master.winfo_width(),
                                 height=self.master.winfo_height(),
-                                bg="grey",
+                                bg="gray64",
                                 borderwidth=0,
                                 highlightthickness=0)
         self.canvas.pack()
@@ -44,42 +44,19 @@ class ControlPage(Page):
         with open(directory, 'r') as f:
             data = json.load(f)
         self.clearCanvas()
-        # add loaded line objects
-        dim = data["dimensions"]
-        self.gridX = dim[0]
-        self.gridY = dim[1]
+        self.setGrid(gridX=data["dimensions"][0], gridY=data["dimensions"][1])
         if "lines" in data:
             for line in data["lines"]:
-                x0 = line[0] / dim[0] * self.master.winfo_width()
-                y0 = line[1] / dim[1] * self.master.winfo_height()
-                x1 = line[2] / dim[0] * self.master.winfo_width()
-                y1 = line[3] / dim[1] * self.master.winfo_height()
-                self.lines[((x0, y0), (x1, y1))] = Line(self.canvas, x0, y0, x1, y1, width=self.lineWidth)
+
+                x0, y0 = self.grid.getPosition(line[0], line[1])
+                x1, y1 = self.grid.getPosition(line[2], line[3])
+                self.lines[((line[0], line[1]), (line[2], line[3]))] = Line(self.canvas, x0, y0, x1, y1, width=self.lineWidth)
         if "weichen" in data:
             for weiche in data["weichen"]:
-                x = weiche[0]
-                y = weiche[1]
-                posX = x / dim[0] * self.master.winfo_width()
-                posY = y / dim[1] * self.master.winfo_height()
+                x, y = self.grid.getPosition(weiche[0], weiche[1])
                 dir0 = weiche[2]
                 dir1 = weiche[3]
-                self.weichen[(x, y)] = Weiche(self.canvas, posX, posY, dir0, dir1)
-
-
-
-    def onResize(self, event):
-        self.master.update()
-        width_new = self.master.winfo_width()
-        height_new = self.master.winfo_height()
-        self.canvas.config(width=width_new, height=height_new)
-        self.canvas.scale("all", 0, 0, width_new / self.width, height_new / self.height)
-        self.width = width_new
-        self.height = height_new
-
-        for x, y in self.weichen:
-            posX = x / self.gridX * self.master.winfo_width()
-            posY = y / self.gridY * self.master.winfo_height()
-            self.weichen[(x, y)].updatePosition(posX, posY)
+                self.weichen[(weiche[0], weiche[1])] = Weiche(self.canvas, x, y, dir0, dir1)
 
 
     def onMousePressed(self, event):
@@ -95,3 +72,12 @@ class ControlPage(Page):
             self.lineWidth = width
             for line in self.lines:
                 self.canvas.itemconfig(line.getId(), width=self.lineWidth)
+
+    def setGrid(self, gridX=None, gridY=None):
+        if not gridX:
+            gridX = self.grid.getGridX()
+        if not gridY:
+            gridY = self.grid.getGridY()
+        isActive = self.grid.getIsActive()
+        self.grid.delete()
+        self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)

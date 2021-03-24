@@ -1,7 +1,6 @@
 class Selector():
-    def __init__(self, canvas, grid, color="black"):
+    def __init__(self, canvas, color="black"):
         self.canvas = canvas
-        self.grid = grid
         self.posX = 0
         self.posY = 0
         self.size = 15
