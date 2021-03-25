@@ -70,16 +70,22 @@ class EditorPage(Page):
     def saveToJson(self):
         # saves line data to json file
         data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": []}
+        #for key in self.lines:
+        #    x0, y0, x1, y1 = self.lines[key].getPositions()
+        #    numX0, numY0 = self.grid.getGridPosition(x0, y0)
+        #    numX1, numY1 = self.grid.getGridPosition(x1, y1)
+        #    data["lines"].append([numX0, numY0, numX1, numY1])
+        #for key in self.weichen:
+        #    x, y = self.weichen[key].getPosition()
+        #    numX, numY = self.grid.getGridPosition(x, y)
+        #    dir0, dir1 = self.weichen[key].getDirections()
+        #    data["weichen"].append([numX, numY, dir0, dir1])
         for key in self.lines:
-            x0, y0, x1, y1 = self.lines[key].getPositions()
-            numX0, numY0 = self.grid.getGridPosition(x0, y0)
-            numX1, numY1 = self.grid.getGridPosition(x1, y1)
-            data["lines"].append([numX0, numY0, numX1, numY1])
+            data["lines"].append([key[0][0], key[0][1], key[1][0], key[1][1]])
         for key in self.weichen:
-            x, y = self.weichen[key].getPosition()
-            numX, numY = self.grid.getGridPosition(x, y)
             dir0, dir1 = self.weichen[key].getDirections()
-            data["weichen"].append([numX, numY, dir0, dir1])
+            sw0, sw1 = self.weichen[key].getSwitches()
+            data["weichen"].append([key[0], key[1], dir0, dir1, sw0, sw1])
 
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
@@ -102,7 +108,7 @@ class EditorPage(Page):
         if "weichen" in data:
             for weiche in data["weichen"]:
                 x, y = self.grid.getPosition(weiche[0], weiche[1])
-                self.weichen[(weiche[0], weiche[1])] = WeicheEditor(self.canvas, x, y, weiche[2], weiche[3])
+                self.weichen[(weiche[0], weiche[1])] = WeicheEditor(self.canvas, x, y, weiche[2], weiche[3], weiche[4], weiche[5])
 
 
     def onMousePressed(self, event):

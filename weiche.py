@@ -48,13 +48,13 @@ class Weiche:
 
 
 class WeicheEditor:
-    def __init__(self, canvas, x, y, dir0=0, dir1=45):
+    def __init__(self, canvas, x, y, dir0=0, dir1=45, sw0=-1, sw1=-1):
         self.canvas = canvas
         self.x = x
         self.y = y
         self.size = 20
         self.directions = [dir0, dir1] 
-        self.switches = [-1, -1]
+        self.switches = [sw0, sw1]
 
         self.ids = []
         self.display()
@@ -76,6 +76,9 @@ class WeicheEditor:
     
     def getDirections(self):
         return self.directions[0], self.directions[1]
+    
+    def getSwitches(self):
+        return self.switches[0], self.switches[1]
 
     def delete(self):
         for id in self.ids:
