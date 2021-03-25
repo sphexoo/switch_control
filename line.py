@@ -8,10 +8,13 @@ class Line():
         self.x1 = x1
         self.y1 = y1
         self.width = width
+        self.id = None       
+        self.display()
+        #self.canvas.addtag_withtag("all", self.id)
 
+    def display(self):
+        self.delete()
         self.id = self.canvas.create_line(self.x0, self.y0, self.x1, self.y1, width=self.width, capstyle=tk.ROUND)
-       
-        self.canvas.addtag_withtag("all", self.id)
 
     def getPositions(self):
         return self.x0, self.y0, self.x1, self.y1
@@ -20,5 +23,13 @@ class Line():
         return self.id
 
     def delete(self):
-        self.canvas.delete(self.id)
-        self.id = None
+        if self.id:
+            self.canvas.delete(self.id)
+            self.id = None
+
+    def updatePosition(self, x0, y0, x1, y1):
+        self.x0 = x0
+        self.y0 = y0
+        self.x1 = x1
+        self.y1 = y1
+        self.display()

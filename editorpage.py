@@ -32,6 +32,7 @@ class EditorPage(Page):
         self.menu_customize.add_command(label="Grid X", command=self.setGridX)
         self.menu_customize.add_command(label="Grid Y", command=self.setGridY)
         self.menu_customize.add_command(label="Line width", command=self.setLineWidth)
+        self.menu_customize.add_command(label="Autoscale", command=self.autoscale)
         self.menu.add_cascade(label="Customize", menu=self.menu_customize)
 
         self.menu_insert = tk.Menu(self.menu)
@@ -68,7 +69,7 @@ class EditorPage(Page):
 
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": self.grid.getDimensions(), "lines": [], "weichen": []}
+        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": []}
         for key in self.lines:
             x0, y0, x1, y1 = self.lines[key].getPositions()
             numX0, numY0 = self.grid.getGridPosition(x0, y0)
@@ -189,3 +190,58 @@ class EditorPage(Page):
             self.lineWidth = width
             for key in self.lines:
                 self.canvas.itemconfig(self.lines[key].getId(), width=self.lineWidth)
+
+    def autoscale(self):
+        """ Resize grid to fit all currently drawn objects. """
+        minX = self.grid.getGridX()
+        minY = self.grid.getGridY()
+        for key in self.lines:
+            for (x, y) in key:
+                if x < minX:
+                    minX = x
+                if y < minY:
+                    minY = y
+        
+        tmp = {}
+        for key in self.lines:
+            #self.lines[key].delete()
+            x0, y0 = self.grid.getPosition(key[0][0] - minX + 1, key[0][1]- minY + 1)
+            x1, y1 = self.grid.getPosition(key[1][0] - minX + 1, key[1][1]- minY + 1)
+            self.lines[key].updatePosition(x0, y0, x1, y1)
+            tmp[((key[0][0] - minX + 1, key[0][1] - minY + 1), (key[1][0] - minX + 1, key[1][1] - minY + 1))] = self.lines[key] #Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+        self.lines = tmp
+        tmp = {}
+        for key in self.weichen:
+            x, y = self.grid.getPosition(key[0] - minX + 1, key[1]- minY + 1)
+            self.weichen[key].updatePosition(x, y)
+            tmp[(key[0] - minX + 1, key[1] - minY + 1)] = self.weichen[key]
+            #self.weichen[key].delete()
+        self.weichen = tmp
+
+        maxX = 0
+        maxY = 0
+        for points in self.lines:
+            for (x, y) in points:
+                if x > maxX:
+                    maxX = x
+                if y > maxY:
+                    maxY = y
+        
+        self.setGrid(gridX=maxX, gridY = maxY)
+        tmp = {}
+        for key in self.lines:
+            #self.lines[key].delete()
+            x0, y0 = self.grid.getPosition(key[0][0], key[0][1])
+            x1, y1 = self.grid.getPosition(key[1][0], key[1][1])
+            self.lines[key].updatePosition(x0, y0, x1, y1)# = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+            tmp[key] = self.lines[key]
+        self.lines = tmp
+        tmp = {}
+        for key in self.weichen:
+            x, y = self.grid.getPosition(key[0], key[1])
+            self.weichen[key].updatePosition(x, y)
+            tmp[key] = self.weichen[key]
+        self.weichen = tmp
+        
+
+

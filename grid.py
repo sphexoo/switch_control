@@ -28,13 +28,6 @@ class Grid:
     def delete(self):
         for id in self.ids:
             self.canvas.delete(id)
-            
-    #def getGridCoords(self, mX, mY):
-    #    self.offsetX = self.canvas.winfo_width() / (self.gridX + 1)
-    #    self.offsetY = self.canvas.winfo_height() / (self.gridY + 1)
-    #    stepsX = round(mX / self.offsetX)
-    #    stepsY = round(mY / self.offsetY)
-    #    return stepsX * self.offsetX, stepsY * self.offsetY
 
     def getGridPosition(self, mX, mY):
         self.canvas.update()
@@ -43,13 +36,6 @@ class Grid:
         gridX = round(mX / self.offsetX)
         gridY = round(mY / self.offsetY)
         return gridX, gridY
-
-    def getDimensions(self):
-        return [self.gridX, self.gridY]
-
-    #def getPosition(self, mX, mY):
-    #    numX, numY = self.getGridPosition(mX, mY)
-    #    return self.offsetX * numX, self.offsetY * numY
     
     def getPosition(self, gridX, gridY):
         return self.offsetX * gridX, self.offsetY * gridY

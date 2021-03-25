@@ -41,6 +41,7 @@ class Weiche:
         self.ids = []
     
     def updatePosition(self, x, y):
+        self.delete()
         self.x = x
         self.y = y
         self.display()

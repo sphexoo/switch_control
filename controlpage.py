@@ -21,6 +21,7 @@ class ControlPage(Page):
         self.menu.add_cascade(label="File", menu=self.menu_file)
         self.menu_customize = tk.Menu(self.menu)
         self.menu_customize.add_command(label="Set line width", command=self.setLineWidth)
+        self.menu_customize.add_command(label="Update controls", command=self.updateControls)
         self.menu.add_cascade(label="Customize", menu=self.menu_customize)
         self.master.config(menu=self.menu)
 
@@ -70,8 +71,8 @@ class ControlPage(Page):
         if user_input and user_input.isdigit():
             width = int(user_input)
             self.lineWidth = width
-            for line in self.lines:
-                self.canvas.itemconfig(line.getId(), width=self.lineWidth)
+            for key in self.lines:
+                self.canvas.itemconfig(self.lines[key].getId(), width=self.lineWidth)
 
     def setGrid(self, gridX=None, gridY=None):
         if not gridX:
@@ -81,3 +82,10 @@ class ControlPage(Page):
         isActive = self.grid.getIsActive()
         self.grid.delete()
         self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)
+
+    def updateControls(self):
+        for key in self.weichen:
+            x, y = self.grid.getPosition(key[0], key[1])
+            self.weichen[key].updatePosition(x, y)
+        for key in self.gleise:
+            pass
