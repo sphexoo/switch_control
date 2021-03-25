@@ -57,7 +57,8 @@ class ControlPage(Page):
                 x, y = self.grid.getPosition(weiche[0], weiche[1])
                 dir0 = weiche[2]
                 dir1 = weiche[3]
-                self.weichen[(weiche[0], weiche[1])] = Weiche(self.canvas, x, y, dir0, dir1)
+                # TODO: create switches
+                self.weichen[(weiche[0], weiche[1])] = Weiche(self.canvas, x, y, dir0, dir1, None)
 
 
     def onMousePressed(self, event):

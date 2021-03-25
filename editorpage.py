@@ -139,18 +139,28 @@ class EditorPage(Page):
     def handleWeiche(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if (event.num == 1):
+            if (gridX, gridY) in self.weichen:
+                self.weichen[(gridX, gridY)].changeDirections()
+                return
             if not self.selector1.isActive():
                 x, y = self.grid.getPosition(gridX, gridY)
                 self.selector1.setPosition(x, y)
-            elif self.selector1.isActive():
-                x, y = self.selector1.getPosition()
-                gridX, gridY = self.grid.getGridPosition(x, y)
-                if not (gridX, gridY) in self.weichen:
-                    self.weichen[(gridX, gridY)] = WeicheEditor(self.canvas, x, y)
-                else:
-                    self.weichen[(gridX, gridY)].changeDirections()
-                self.selector1.hide()
+                return
+            x, y = self.selector1.getPosition()
+            gridX, gridY = self.grid.getGridPosition(x, y)
+            self.weichen[(gridX, gridY)] = WeicheEditor(self.canvas, x, y)
+            self.selector1.hide()
         elif (event.num == 3):
+            if (gridX, gridY) in self.weichen:
+                user_input_0 = simpledialog.askstring("Switch 1 of 2", "Pin number")
+                user_input_1 = simpledialog.askstring("Switch 2 of 2", "Pin number")
+                try:
+                    s0 = int(user_input_0)
+                    s1 = int(user_input_1)
+                except:
+                    s0 = -1
+                    s1 = -1
+                self.weichen[(gridX, gridY)].updateSwitches(s0, s1)
             self.selector1.hide()
 
     def handleGleis(self, event):

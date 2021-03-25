@@ -1,14 +1,14 @@
 from math import cos, sin, pi, radians
 
 class Weiche:
-    def __init__(self, canvas, x, y, dir0, dir1):
+    def __init__(self, canvas, x, y, dir0, dir1, switches):
         self.canvas = canvas
         self.x = x
         self.y = y
         self.state = 0
         self.size = 20
         self.directions = [dir0, dir1] 
-        self.switches = []
+        self.switches = switches
 
         self.ids = []
         self.display()
@@ -70,9 +70,6 @@ class WeicheEditor:
         self.directions[0] = (self.directions[0] + 45) % 360
         self.directions[1] = (self.directions[1] + 45) % 360
         self.display()
-        
-    def setSwitches(self, sw):
-        self.switches = sw
 
     def getPosition(self):
         return self.x, self.y
@@ -88,4 +85,8 @@ class WeicheEditor:
     def updatePosition(self, x, y):
         self.x = x
         self.y = y
+        self.display()
+
+    def updateSwitches(self, s1, s2):
+        self.switches = [s1, s2]
         self.display()
