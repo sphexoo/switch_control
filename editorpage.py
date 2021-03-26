@@ -18,28 +18,25 @@ class EditorPage(Page):
         self.menu = tk.Menu(self.frame)
 
         self.menu_file = tk.Menu(self.menu)
-        self.menu_file.add_command(label="New", command=self.clearCanvas)
-        self.menu_file.add_command(label="Load", command=self.loadFromJson)
-        self.menu_file.add_command(label="Save as", command=self.saveToJson)
-        self.menu_file.add_command(label="Exit editor", command=self.parent.exitEditor)
-        self.menu.add_cascade(label="File", menu=self.menu_file)
+        self.menu_file.add_command(label="Neu", command=self.clearCanvas)
+        self.menu_file.add_command(label="Öffnen", command=self.loadFromJson)
+        self.menu_file.add_command(label="Speichern unter", command=self.saveToJson)
+        self.menu_file.add_command(label="Editor beenden", command=self.parent.exitEditor)
+        self.menu.add_cascade(label="Datei", menu=self.menu_file)
 
         self.menu_edit = tk.Menu(self.menu)
-        self.menu_edit.add_command(label="Undo", command=self.undo)
-        self.menu.add_cascade(label="Edit", menu=self.menu_edit)
-
-        self.menu_customize = tk.Menu(self.menu)
-        self.menu_customize.add_command(label="Grid X", command=self.setGridX)
-        self.menu_customize.add_command(label="Grid Y", command=self.setGridY)
-        self.menu_customize.add_command(label="Line width", command=self.setLineWidth)
-        self.menu_customize.add_command(label="Autoscale", command=self.autoscale)
-        self.menu.add_cascade(label="Customize", menu=self.menu_customize)
+        self.menu_edit.add_command(label="Rückgängig", command=self.undo)
+        self.menu_edit.add_command(label="Raster X", command=self.setGridX)
+        self.menu_edit.add_command(label="Raster Y", command=self.setGridY)
+        self.menu_edit.add_command(label="Linienbreite", command=self.setLineWidth)
+        self.menu_edit.add_command(label="Autoskalierung", command=self.autoscale)
+        self.menu.add_cascade(label="Bearbeiten", menu=self.menu_edit)
 
         self.menu_insert = tk.Menu(self.menu)
         self.menu_insert.add_command(label="Linie", command=lambda: self.setCurrentItem("Linie"))
         self.menu_insert.add_command(label="Weiche", command=lambda: self.setCurrentItem("Weiche"))
         self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
-        self.menu.add_cascade(label="Insert", menu=self.menu_insert)
+        self.menu.add_cascade(label="Einfügen", menu=self.menu_insert)
 
         self.master.config(menu=self.menu)
 
@@ -84,6 +81,8 @@ class EditorPage(Page):
     def loadFromJson(self):
         # load data from file 
         directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if not directory:
+            return
         with open(directory, 'r') as f:
             data = json.load(f)
         self.clearCanvas()
@@ -148,10 +147,10 @@ class EditorPage(Page):
             self.selector1.hide()
         elif (event.num == 3):
             if (gridX, gridY) in self.weichen:
-                in0 = simpledialog.askstring("Switch 1 of 2", "Pin 1")
-                in1 = simpledialog.askstring("Switch 1 of 2", "Pin 2")
-                in2 = simpledialog.askstring("Switch 2 of 2", "Pin 1")
-                in3 = simpledialog.askstring("Switch 2 of 2", "Pin 2")
+                in0 = simpledialog.askstring("Schalter 1 von 2", "Pin 1")
+                in1 = simpledialog.askstring("Schalter 1 von 2", "Pin 2")
+                in2 = simpledialog.askstring("Schalter 2 von 2", "Pin 1")
+                in3 = simpledialog.askstring("Schalter 2 von 2", "Pin 2")
                 try:
                     s0 = [int(in0), int(in1)]
                     s1 = [int(in2), int(in3)]
@@ -180,19 +179,19 @@ class EditorPage(Page):
         self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)
 
     def setGridX(self):
-        user_input = simpledialog.askstring("Customize", "Grid X")
+        user_input = simpledialog.askstring("Bearbeiten", "Raster X")
         if user_input and user_input.isdigit():
             gridX = int(user_input)
             self.setGrid(gridX=gridX)
 
     def setGridY(self):
-        user_input = simpledialog.askstring("Customize", "Grid Y")
+        user_input = simpledialog.askstring("Bearbeiten", "Raster Y")
         if user_input and user_input.isdigit():
             gridY = int(user_input)
             self.setGrid(gridY=gridY)
 
     def setLineWidth(self):
-        user_input = simpledialog.askstring("Customize", "Line width")
+        user_input = simpledialog.askstring("Bearbeiten", "Linienbreite")
         if user_input and user_input.isdigit():
             width = int(user_input)
             self.lineWidth = width

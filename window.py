@@ -21,7 +21,6 @@ class Window(tk.Frame):
         self.current_control = 0
 
         self.serial = ser.Serial(baudrate=9600, port="COM3", timeout=2)
-        self.serial = None
         sleep(2)
         
         self.pages = [ControlPage(self.master, self, self.serial), ControlPage(self.master, self, self.serial)]

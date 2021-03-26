@@ -18,13 +18,13 @@ class ControlPage(Page):
         
         self.menu = tk.Menu(self.frame)
         self.menu_file = tk.Menu(self.menu)
-        self.menu_file.add_command(label="Load", command=self.loadFromJson)
-        self.menu_file.add_command(label="Open editor", command=self.parent.openEditor)
-        self.menu.add_cascade(label="File", menu=self.menu_file)
+        self.menu_file.add_command(label="Öffnen", command=self.loadFromJson)
+        self.menu_file.add_command(label="Editor starten", command=self.parent.openEditor)
+        self.menu.add_cascade(label="Datei", menu=self.menu_file)
         self.menu_customize = tk.Menu(self.menu)
-        self.menu_customize.add_command(label="Set line width", command=self.setLineWidth)
-        self.menu_customize.add_command(label="Update controls", command=self.updateControls)
-        self.menu.add_cascade(label="Customize", menu=self.menu_customize)
+        self.menu_customize.add_command(label="Linienbreite", command=self.setLineWidth)
+        self.menu_customize.add_command(label="Ansicht neu laden", command=self.updateControls)
+        self.menu.add_cascade(label="Bearbeiten", menu=self.menu_customize)
         self.master.config(menu=self.menu)
 
         self.canvas = tk.Canvas(self.frame,
@@ -44,6 +44,8 @@ class ControlPage(Page):
     def loadFromJson(self):
         # load data from file 
         directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if not directory:
+            return
         with open(directory, 'r') as f:
             data = json.load(f)
         self.clearCanvas()
@@ -70,7 +72,7 @@ class ControlPage(Page):
 
 
     def setLineWidth(self):
-        user_input = simpledialog.askstring("Customize", "Line width")
+        user_input = simpledialog.askstring("Bearbeiten", "Linienbreite")
         if user_input and user_input.isdigit():
             width = int(user_input)
             self.lineWidth = width
