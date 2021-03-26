@@ -20,8 +20,11 @@ class Window(tk.Frame):
         self.current_page = None
         self.current_control = 0
 
-        self.serial = ser.Serial(baudrate=9600, port="COM3", timeout=2)
-        sleep(2)
+        try:
+            self.serial = ser.Serial(baudrate=9600, port="COM3", timeout=2)
+            sleep(2)
+        except:
+            self.serial = None
         
         self.pages = [ControlPage(self.master, self, self.serial), ControlPage(self.master, self, self.serial)]
         self.editor_page = EditorPage(self.master, self)

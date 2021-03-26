@@ -107,11 +107,41 @@ class EditorPage(Page):
             self.handleWeiche(event)
         elif self.current_item == "Gleis":
             self.handleGleis(event)
+    
+    def onKeyPressed(self, event):
+        if event.keysym  == "Delete":
+            if not self.selector1.isActive():
+                return
+            self.handleDelete()
+            
         
+    def handleDelete(self):
+        x, y = self.selector1.getPosition()
+        self.selector1.hide()
+        gridX, gridY = self.grid.getGridPosition(x, y)
+        if self.current_item == "Linie":
+            keys_to_delete = []
+            for key in self.lines:
+                if (key[0] == (gridX, gridY) or key[1] == (gridX, gridY)):
+                    keys_to_delete.append(key)
+            for key in keys_to_delete:
+                self.lines[key].delete()
+                del self.lines[key]
+        elif self.current_item == "Weiche":
+            keys_to_delete = []
+            for key in self.weichen:
+                if key == (gridX, gridY):
+                    keys_to_delete.append(key)
+            for key in keys_to_delete:
+                self.weichen[key].delete()
+                del self.weichen[key]
+        elif self.current_item == "Gleis":
+            pass
+
 
     def handleLinie(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
-        if (event.num == 1):
+        if event.num == 1:
             if not self.selector1.isActive():
                 x, y = self.grid.getPosition(gridX, gridY)
                 self.selector1.setPosition(x, y)
@@ -127,25 +157,26 @@ class EditorPage(Page):
                     self.lines[((gx0, gy0), (gx1, gy1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
                 self.selector1.hide()
                 self.selector2.hide()
-        elif (event.num == 3):
+        elif event.num == 3:
             self.selector1.hide()
             self.selector2.hide()
 
+
     def handleWeiche(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
-        if (event.num == 1):
-            if (gridX, gridY) in self.weichen:
-                self.weichen[(gridX, gridY)].changeDirections()
-                return
+        if event.num == 1:
             if not self.selector1.isActive():
                 x, y = self.grid.getPosition(gridX, gridY)
                 self.selector1.setPosition(x, y)
                 return
             x, y = self.selector1.getPosition()
             gridX, gridY = self.grid.getGridPosition(x, y)
+            if (gridX, gridY) in self.weichen:
+                self.weichen[(gridX, gridY)].changeDirections()
+                return
             self.weichen[(gridX, gridY)] = WeicheEditor(self.canvas, x, y)
             self.selector1.hide()
-        elif (event.num == 3):
+        elif event.num == 3:
             if (gridX, gridY) in self.weichen:
                 in0 = simpledialog.askstring("Schalter 1 von 2", "Pin 1")
                 in1 = simpledialog.askstring("Schalter 1 von 2", "Pin 2")
@@ -237,7 +268,6 @@ class EditorPage(Page):
         self.setGrid(gridX=maxX, gridY = maxY)
         tmp = {}
         for key in self.lines:
-            #self.lines[key].delete()
             x0, y0 = self.grid.getPosition(key[0][0], key[0][1])
             x1, y1 = self.grid.getPosition(key[1][0], key[1][1])
             self.lines[key].updatePosition(x0, y0, x1, y1)# = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
