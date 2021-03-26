@@ -2,6 +2,9 @@ import tkinter as tk
 from editorpage import EditorPage
 from controlpage import ControlPage
 
+import serial as ser
+from time import sleep
+
 
 class Window(tk.Frame):
     def __init__(self, master):
@@ -16,8 +19,12 @@ class Window(tk.Frame):
 
         self.current_page = None
         self.current_control = 0
+
+        self.serial = ser.Serial(baudrate=9600, port="COM3", timeout=2)
+        self.serial = None
+        sleep(2)
         
-        self.pages = [ControlPage(self.master, self), ControlPage(self.master, self)]
+        self.pages = [ControlPage(self.master, self, self.serial), ControlPage(self.master, self, self.serial)]
         self.editor_page = EditorPage(self.master, self)
         for page in self.pages:
             page.show()
@@ -26,10 +33,6 @@ class Window(tk.Frame):
         self.editor_page.hide()
         self.current_page = self.pages[self.current_control]
         self.current_page.show()
-
-        #self.serial = ser.Serial(baudrate=9600, port="COM1", timeout=2)
-        #print(self.serial)
-        #self.serial.write_timeout(3.0)
 
     def setPage(self, page):
         if not self.current_page == page:

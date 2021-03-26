@@ -1,8 +1,9 @@
 from math import cos, sin, pi, radians
 
 class Weiche:
-    def __init__(self, canvas, x, y, dir0, dir1, switches):
+    def __init__(self, canvas, x, y, dir0, dir1, switches, serial):
         self.canvas = canvas
+        self.serial = serial
         self.x = x
         self.y = y
         self.state = 0
@@ -19,7 +20,10 @@ class Weiche:
         self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[self.state])), self.y + self.size * sin(radians(self.directions[self.state])), fill="red", width=2))
 
     def toggle(self):
-        #self.switches[self.state].toggle()
+        data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
+        out = bytes(str(data), 'ascii')
+        self.serial.write(out)
+        
         if self.state == 1:
             self.state = 0
         else:
@@ -48,7 +52,7 @@ class Weiche:
 
 
 class WeicheEditor:
-    def __init__(self, canvas, x, y, dir0=0, dir1=45, sw0=-1, sw1=-1):
+    def __init__(self, canvas, x, y, dir0=0, dir1=45, sw0=[22, 23], sw1=[24, 25]):
         self.canvas = canvas
         self.x = x
         self.y = y
@@ -64,7 +68,8 @@ class WeicheEditor:
             self.canvas.delete(id)
         self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[0])), self.y + self.size * sin(radians(self.directions[0])), fill="red"))
         self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[1])), self.y + self.size * sin(radians(self.directions[1])), fill="red"))
-        self.ids.append(self.canvas.create_text(self.x + 10, self.y + 10, text=str(self.switches), fill="white"))
+        self.ids.append(self.canvas.create_text(self.x + 10, self.y + 10, text=str(self.switches[0]), fill="white"))
+        self.ids.append(self.canvas.create_text(self.x + 10, self.y + 20, text=str(self.switches[1]), fill="white"))
 
     def changeDirections(self):
         self.directions[0] = (self.directions[0] + 45) % 360

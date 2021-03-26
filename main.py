@@ -1,5 +1,4 @@
 import tkinter as tk
-import serial as ser
 from window import Window
 
 

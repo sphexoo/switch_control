@@ -9,10 +9,12 @@ from weiche import Weiche
 
 
 class ControlPage(Page):
-    def __init__(self, master, parent):
+    def __init__(self, master, parent, serial):
         super().__init__(master, parent)
         
         self.lineWidth = 30
+
+        self.serial = serial
         
         self.menu = tk.Menu(self.frame)
         self.menu_file = tk.Menu(self.menu)
@@ -57,8 +59,8 @@ class ControlPage(Page):
                 x, y = self.grid.getPosition(weiche[0], weiche[1])
                 dir0 = weiche[2]
                 dir1 = weiche[3]
-                # TODO: create switches
-                self.weichen[(weiche[0], weiche[1])] = Weiche(self.canvas, x, y, dir0, dir1, None)
+                switches = [weiche[4], weiche[5]]
+                self.weichen[(weiche[0], weiche[1])] = Weiche(self.canvas, x, y, dir0, dir1, switches, self.serial)
 
 
     def onMousePressed(self, event):

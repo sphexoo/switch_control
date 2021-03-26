@@ -70,16 +70,6 @@ class EditorPage(Page):
     def saveToJson(self):
         # saves line data to json file
         data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": []}
-        #for key in self.lines:
-        #    x0, y0, x1, y1 = self.lines[key].getPositions()
-        #    numX0, numY0 = self.grid.getGridPosition(x0, y0)
-        #    numX1, numY1 = self.grid.getGridPosition(x1, y1)
-        #    data["lines"].append([numX0, numY0, numX1, numY1])
-        #for key in self.weichen:
-        #    x, y = self.weichen[key].getPosition()
-        #    numX, numY = self.grid.getGridPosition(x, y)
-        #    dir0, dir1 = self.weichen[key].getDirections()
-        #    data["weichen"].append([numX, numY, dir0, dir1])
         for key in self.lines:
             data["lines"].append([key[0][0], key[0][1], key[1][0], key[1][1]])
         for key in self.weichen:
@@ -158,14 +148,16 @@ class EditorPage(Page):
             self.selector1.hide()
         elif (event.num == 3):
             if (gridX, gridY) in self.weichen:
-                user_input_0 = simpledialog.askstring("Switch 1 of 2", "Pin number")
-                user_input_1 = simpledialog.askstring("Switch 2 of 2", "Pin number")
+                in0 = simpledialog.askstring("Switch 1 of 2", "Pin 1")
+                in1 = simpledialog.askstring("Switch 1 of 2", "Pin 2")
+                in2 = simpledialog.askstring("Switch 2 of 2", "Pin 1")
+                in3 = simpledialog.askstring("Switch 2 of 2", "Pin 2")
                 try:
-                    s0 = int(user_input_0)
-                    s1 = int(user_input_1)
+                    s0 = [int(in0), int(in1)]
+                    s1 = [int(in2), int(in3)]
                 except:
-                    s0 = -1
-                    s1 = -1
+                    s0 = [22, 23]
+                    s1 = [24, 25]
                 self.weichen[(gridX, gridY)].updateSwitches(s0, s1)
             self.selector1.hide()
 
