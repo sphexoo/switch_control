@@ -76,7 +76,7 @@ class ControlPage(Page):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if (gridX, gridY) in self.weichen:
             self.weichen[(gridX, gridY)].toggle()
-        else if (gridX, gridY) in self.gleise:
+        elif (gridX, gridY) in self.gleise:
             for key in self.gleise:
                 if key == (gridX, gridY):
                     self.gleise[key].activate()

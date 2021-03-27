@@ -71,10 +71,10 @@ class GleisEditor:
         self.canvas.delete(self.id)
         self.id = None
 
- class GleisGroup:
-     def __init__(self):
-         pass
+class GleisGroup:
+    def __init__(self):
+        pass
 
- class GleisGroupEditor:
-     def __init__(self):
-         pass
+class GleisGroupEditor:
+    def __init__(self):
+        pass
