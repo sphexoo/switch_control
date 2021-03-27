@@ -5,7 +5,9 @@ from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
+from gleis import GleisEditor
 from weiche import WeicheEditor
+
 
 
 class EditorPage(Page):
@@ -25,7 +27,6 @@ class EditorPage(Page):
         self.menu.add_cascade(label="Datei", menu=self.menu_file)
 
         self.menu_edit = tk.Menu(self.menu)
-        self.menu_edit.add_command(label="Rückgängig", command=self.undo)
         self.menu_edit.add_command(label="Raster X", command=self.setGridX)
         self.menu_edit.add_command(label="Raster Y", command=self.setGridY)
         self.menu_edit.add_command(label="Linienbreite", command=self.setLineWidth)
@@ -54,7 +55,7 @@ class EditorPage(Page):
         self.width = self.canvas.winfo_width()
         self.height = self.canvas.winfo_height()
 
-        self.selector1 = Selector(self.canvas, color="red")
+        self.selector1 = Selector(self.canvas, color="blue")
         self.selector2 = Selector(self.canvas, color="green")
 
         self.canvas.addtag_all("all")
@@ -66,13 +67,15 @@ class EditorPage(Page):
 
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": []}
+        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[]}
         for key in self.lines:
             data["lines"].append([key[0][0], key[0][1], key[1][0], key[1][1]])
         for key in self.weichen:
             dir0, dir1 = self.weichen[key].getDirections()
             sw0, sw1 = self.weichen[key].getSwitches()
             data["weichen"].append([key[0], key[1], dir0, dir1, sw0, sw1])
+        for key in self.gleise:
+            data["gleise"].append([key[0], key[1]])
 
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
@@ -98,6 +101,10 @@ class EditorPage(Page):
             for weiche in data["weichen"]:
                 x, y = self.grid.getPosition(weiche[0], weiche[1])
                 self.weichen[(weiche[0], weiche[1])] = WeicheEditor(self.canvas, x, y, weiche[2], weiche[3], weiche[4], weiche[5])
+        if "gleise" in data:
+            for gleis in data["gleise"]:
+                x, y = self.grid.getPosition(gleis[0], gleis[1])
+                self.gleise[(gleis[0], gleis[1])] = GleisEditor(self.canvas, x, y)
 
 
     def onMousePressed(self, event):
@@ -113,6 +120,7 @@ class EditorPage(Page):
             if not self.selector1.isActive():
                 return
             self.handleDelete()
+            self.selector2.hide()
             
         
     def handleDelete(self):
@@ -136,7 +144,13 @@ class EditorPage(Page):
                 self.weichen[key].delete()
                 del self.weichen[key]
         elif self.current_item == "Gleis":
-            pass
+            keys_to_delete = []
+            for key in self.gleise:
+                if key == (gridX, gridY):
+                    keys_to_delete.append(key)
+            for key in keys_to_delete:
+                self.gleise[key].delete()
+                del self.gleise[key]
 
 
     def handleLinie(self, event):
@@ -192,13 +206,17 @@ class EditorPage(Page):
             self.selector1.hide()
 
     def handleGleis(self, event):
-        pass    
-
-    def undo(self):
-        pass
-        #if len(self.lines) > 0:
-        #    self.canvas.delete(self.lines[-1].getId())
-        #    self.lines.pop()
+        gridX, gridY = self.grid.getGridPosition(event.x, event.y)
+        if event.num == 1:
+            if not self.selector1.isActive():
+                x, y = self.grid.getPosition(gridX, gridY)
+                self.selector1.setPosition(x, y)
+                return
+            x, y = self.selector1.getPosition()
+            gridX, gridY = self.grid.getGridPosition(x, y)
+            self.gleise[(gridX, gridY)] = GleisEditor(self.canvas, x, y)
+            self.selector1.hide()
+        
     
     def setGrid(self, gridX=None, gridY=None):
         if not gridX:

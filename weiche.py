@@ -1,4 +1,5 @@
 from math import cos, sin, pi, radians
+from time import sleep
 
 class Weiche:
     def __init__(self, canvas, x, y, dir0, dir1, switches, serial):
@@ -29,7 +30,14 @@ class Weiche:
         else:
             self.state = 1
         self.display()
-        
+    
+    def init(self):
+        self.state = 0
+        data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
+        out = bytes(str(data), 'ascii')
+        self.serial.write(out)
+        self.display()
+
     def setSwitches(self, sw):
         self.switches = sw
 

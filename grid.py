@@ -60,3 +60,6 @@ class Grid:
     
     def getGridY(self):
         return self.gridY
+
+    def update(self):
+        self.canvas.update()

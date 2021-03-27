@@ -4,6 +4,7 @@ from controlpage import ControlPage
 
 import serial as ser
 from time import sleep
+from pseudoserial import PseudoSerial
 
 
 class Window(tk.Frame):
@@ -24,7 +25,7 @@ class Window(tk.Frame):
             self.serial = ser.Serial(baudrate=9600, port="COM3", timeout=2)
             sleep(2)
         except:
-            self.serial = None
+            self.serial = PseudoSerial()
         
         self.pages = [ControlPage(self.master, self, self.serial), ControlPage(self.master, self, self.serial)]
         self.editor_page = EditorPage(self.master, self)

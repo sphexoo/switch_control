@@ -1,11 +1,14 @@
 import tkinter as tk
 from tkinter import filedialog, simpledialog
+from threading import Thread, active_count
+from time import sleep
 import json
 from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
 from weiche import Weiche
+from gleis import Gleis
 
 
 class ControlPage(Page):
@@ -24,6 +27,7 @@ class ControlPage(Page):
         self.menu_customize = tk.Menu(self.menu)
         self.menu_customize.add_command(label="Linienbreite", command=self.setLineWidth)
         self.menu_customize.add_command(label="Ansicht neu laden", command=self.updateControls)
+        self.menu_customize.add_command(label="Weichen initialisieren", command=self.asyncInitWeichen)
         self.menu.add_cascade(label="Bearbeiten", menu=self.menu_customize)
         self.master.config(menu=self.menu)
 
@@ -63,13 +67,21 @@ class ControlPage(Page):
                 dir1 = weiche[3]
                 switches = [weiche[4], weiche[5]]
                 self.weichen[(weiche[0], weiche[1])] = Weiche(self.canvas, x, y, dir0, dir1, switches, self.serial)
-
+        if "gleise" in data:
+            for gleis in data["gleise"]:
+                x, y = self.grid.getPosition(gleis[0], gleis[1])
+                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y)
 
     def onMousePressed(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if (gridX, gridY) in self.weichen:
             self.weichen[(gridX, gridY)].toggle()
-
+        else if (gridX, gridY) in self.gleise:
+            for key in self.gleise:
+                if key == (gridX, gridY):
+                    self.gleise[key].activate()
+                else:
+                    self.gleise[key].deactivate()
 
     def setLineWidth(self):
         user_input = simpledialog.askstring("Bearbeiten", "Linienbreite")
@@ -93,4 +105,24 @@ class ControlPage(Page):
             x, y = self.grid.getPosition(key[0], key[1])
             self.weichen[key].updatePosition(x, y)
         for key in self.gleise:
-            pass
+            x, y = self.grid.getPosition(key[0], key[1])
+            self.gleise[key].updatePosition(x, y)
+
+    def asyncInitWeichen(self):
+        thread = Thread(target=self.initWeichen, daemon=True)
+        thread.start()
+
+    def initWeichen(self):
+        for key in self.weichen:
+            self.weichen[key].init()
+            sleep(0.05)
+
+    
+    def asyncSetWeichen(self, keys_and_states):
+        thread = Thread(target=self.setWeichen, daemon=True, args=(keys_and_states,))
+        thread.start()
+
+    def setWeichen(self, keys_and_states):
+        for key, state in keys_and_states:
+            self.weichen[key].setState(state)
+            sleep(0.05)

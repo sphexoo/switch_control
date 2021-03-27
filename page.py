@@ -44,3 +44,6 @@ class Page():
         self.lines = {}
         self.weichen = {}
         self.gleise = {}
+    
+        self.master.update()
+        self.canvas.update()
