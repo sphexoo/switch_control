@@ -47,7 +47,7 @@ class Weiche:
 
     
     def init(self):
-        self.state = 0
+        self.state = 1
         data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
         out = bytes(str(data), 'ascii')
         self.serial.write(out)
