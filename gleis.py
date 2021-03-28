@@ -1,16 +1,15 @@
-class Gleis:
+from drawable import Drawable
+
+class Gleis(Drawable):
     def __init__(self, canvas, x, y, gleisId, groupId):
-        self.canvas = canvas
+        super().__init__(canvas, x, y)
         self.gleisId = gleisId
         self.groupId = groupId
-        self.x = x
-        self.y = y
         self.weichen = []
         self.states = []
         self.others = []
         self.state = True
         self.size = 10
-        self.ids = []
         self.display()
 
     def display(self):
@@ -29,34 +28,20 @@ class Gleis:
         self.state = False
         self.canvas.itemconfig(self.ids[0], fill="red")
     
-    def delete(self):
-        for id in self.ids:
-            self.canvas.delete(id)
-        self.ids = []
-    
-    def updatePosition(self, x, y):
-        self.delete()
-        self.x = x
-        self.y = y
-        self.display()
-    
     def getGroupId(self):
         return self.groupId
 
 
-class GleisEditor:
+class GleisEditor(Drawable):
     def __init__(self, canvas, x, y, gleisId=None, groupId=None):
+        super().__init__(canvas, x, y)
         self.gleisId = gleisId
         self.groupId = groupId
-        self.canvas = canvas
-        self.x = x
-        self.y = y
         self.weichen = []
         self.states = []
         self.others = []
         self.state = True
         self.size = 7
-        self.ids = []
         self.display()
 
     def display(self):
@@ -76,11 +61,6 @@ class GleisEditor:
     def deactivate(self):
         self.state = False
         self.canvas.itemconfig(self.id, fill="red")
-    
-    def delete(self):
-        for id in self.ids:
-            self.canvas.delete(id)
-        self.ids = []
     
     def setGroupId(self, groupId):
         self.groupId = groupId

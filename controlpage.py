@@ -113,10 +113,10 @@ class ControlPage(Page):
     def updateControls(self):
         for key in self.weichen:
             x, y = self.grid.getPosition(key[0], key[1])
-            self.weichen[key].updatePosition(x, y)
+            self.weichen[key].setPosition(x, y)
         for key in self.gleise:
             x, y = self.grid.getPosition(key[0], key[1])
-            self.gleise[key].updatePosition(x, y)
+            self.gleise[key].setPosition(x, y)
 
     def asyncInitWeichen(self):
         thread = Thread(target=self.initWeichen, daemon=True)

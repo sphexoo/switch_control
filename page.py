@@ -11,8 +11,7 @@ class Page():
         self.weichen = {}
         self.gleise = {}
         self.weichengroups = {}
-        self.gleisgroup = {}
-
+        
     def show(self):
         self.master.config(menu=self.menu)
         self.frame.pack()

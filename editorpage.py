@@ -29,7 +29,7 @@ class EditorPage(Page):
         self.menu_edit.add_command(label="Raster X", command=self.setGridX)
         self.menu_edit.add_command(label="Raster Y", command=self.setGridY)
         self.menu_edit.add_command(label="Linienbreite", command=self.setLineWidth)
-        self.menu_edit.add_command(label="Autoskalierung", command=self.autoscale)
+        self.menu_edit.add_command(label="Autoskalierung (löscht Weichengruppen)", command=self.autoscale)
         self.menu.add_cascade(label="Bearbeiten", menu=self.menu_edit)
 
         self.menu_insert = tk.Menu(self.menu)
@@ -339,6 +339,7 @@ class EditorPage(Page):
 
     def autoscale(self):
         """ Resize grid to fit all currently drawn objects. """
+        # find minimum grid indices
         minX = self.grid.getGridX()
         minY = self.grid.getGridY()
         for key in self.lines:
@@ -347,21 +348,27 @@ class EditorPage(Page):
                     minX = x
                 if y < minY:
                     minY = y
-        
+        # move objects to top right of grid space
         tmp = {}
         for key in self.lines:
             x0, y0 = self.grid.getPosition(key[0][0] - minX + 1, key[0][1]- minY + 1)
             x1, y1 = self.grid.getPosition(key[1][0] - minX + 1, key[1][1]- minY + 1)
-            self.lines[key].updatePosition(x0, y0, x1, y1)
+            self.lines[key].setPosition(x0, y0, x1, y1)
             tmp[((key[0][0] - minX + 1, key[0][1] - minY + 1), (key[1][0] - minX + 1, key[1][1] - minY + 1))] = self.lines[key] #Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
         self.lines = tmp
         tmp = {}
         for key in self.weichen:
             x, y = self.grid.getPosition(key[0] - minX + 1, key[1]- minY + 1)
-            self.weichen[key].updatePosition(x, y)
+            self.weichen[key].setPosition(x, y)
             tmp[(key[0] - minX + 1, key[1] - minY + 1)] = self.weichen[key]
         self.weichen = tmp
-
+        tmp = {}
+        for key in self.gleise:
+            x, y = self.grid.getPosition(key[0] - minX + 1, key[1]- minY + 1)
+            self.gleise[key].setPosition(x, y)
+            tmp[(key[0] - minX + 1, key[1] - minY + 1)] = self.gleise[key]
+        self.gleise = tmp
+        # find maximum grid indices
         maxX = 0
         maxY = 0
         for points in self.lines:
@@ -370,19 +377,30 @@ class EditorPage(Page):
                     maxX = x
                 if y > maxY:
                     maxY = y
-        
+        # cut empty grid space at bottom right
         self.setGrid(gridX=maxX, gridY = maxY)
+        # reposition objects on new grid
         tmp = {}
         for key in self.lines:
             x0, y0 = self.grid.getPosition(key[0][0], key[0][1])
             x1, y1 = self.grid.getPosition(key[1][0], key[1][1])
-            self.lines[key].updatePosition(x0, y0, x1, y1)
+            self.lines[key].setPosition(x0, y0, x1, y1)
             tmp[key] = self.lines[key]
         self.lines = tmp
         tmp = {}
         for key in self.weichen:
             x, y = self.grid.getPosition(key[0], key[1])
-            self.weichen[key].updatePosition(x, y)
+            self.weichen[key].setPosition(x, y)
             tmp[key] = self.weichen[key]
         self.weichen = tmp
+        tmp = {}
+        for key in self.gleise:
+            x, y = self.grid.getPosition(key[0], key[1])
+            self.gleise[key].setPosition(x, y)
+            tmp[key] = self.gleise[key]
+        self.gleise = tmp
+        # delete weichengroups (TODO: make weichengroups resize with autoscale)
+        for key in self.weichengroups:
+            self.weichengroups[key].delete()
+        self.weichengroups = {}
         
