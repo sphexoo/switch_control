@@ -18,21 +18,21 @@ class EditorPage(Page):
 
         self.menu = tk.Menu(self.frame)
 
-        self.menu_file = tk.Menu(self.menu)
+        self.menu_file = tk.Menu(self.menu, tearoff=False)
         self.menu_file.add_command(label="Neu", command=self.clearCanvas)
         self.menu_file.add_command(label="Öffnen", command=self.loadFromJson)
         self.menu_file.add_command(label="Speichern unter", command=self.saveToJson)
         self.menu_file.add_command(label="Editor beenden", command=self.parent.exitEditor)
         self.menu.add_cascade(label="Datei", menu=self.menu_file)
 
-        self.menu_edit = tk.Menu(self.menu)
+        self.menu_edit = tk.Menu(self.menu, tearoff=False)
         self.menu_edit.add_command(label="Raster X", command=self.setGridX)
         self.menu_edit.add_command(label="Raster Y", command=self.setGridY)
         self.menu_edit.add_command(label="Linienbreite", command=self.setLineWidth)
         self.menu_edit.add_command(label="Autoskalierung (löscht Weichengruppen)", command=self.autoscale)
         self.menu.add_cascade(label="Bearbeiten", menu=self.menu_edit)
 
-        self.menu_insert = tk.Menu(self.menu)
+        self.menu_insert = tk.Menu(self.menu, tearoff=False)
         self.menu_insert.add_command(label="Linie", command=lambda: self.setCurrentItem("Linie"))
         self.menu_insert.add_command(label="Weiche", command=lambda: self.setCurrentItem("Weiche"))
         self.menu_insert.add_command(label="Weichengruppe", command=lambda: self.setCurrentItem("Weichengruppe"))
@@ -334,7 +334,7 @@ class EditorPage(Page):
             width = int(user_input)
             self.lineWidth = width
             for key in self.lines:
-                self.canvas.itemconfig(self.lines[key].getId(), width=self.lineWidth)
+                self.canvas.itemconfig(self.lines[key].getIds(), width=self.lineWidth)
 
 
     def autoscale(self):

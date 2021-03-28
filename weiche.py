@@ -1,3 +1,5 @@
+import tkinter as tk
+
 from math import cos, sin, pi, radians
 from time import sleep
 
@@ -5,18 +7,20 @@ from drawable import Drawable
 
 
 class Weiche(Drawable):
-    def __init__(self, canvas, x, y, dir0, dir1, switches, serial):
-        super().__init__(canvas, x, y)
+    def __init__(self, canvas, x, y, color, dir0, dir1, switches, serial, length, width):
+        super().__init__(canvas, x, y, color)
         self.serial = serial
         self.state = 0
-        self.size = 20
+        self.length = length
+        self.width = width
+        self.color = color
         self.directions = [dir1, dir0] 
         self.switches = switches
         self.display()
 
     def display(self):
         self.delete()
-        self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[self.state])), self.y + self.size * sin(radians(self.directions[self.state])), fill="red", width=2))
+        self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.length * cos(radians(self.directions[self.state])), self.y + self.length * sin(radians(self.directions[self.state])), fill=self.color, width=self.width, capstyle=tk.ROUND))
 
     def toggle(self):
         if self.state == 1:
@@ -31,6 +35,14 @@ class Weiche(Drawable):
             self.state = state
             self.sendSerial()
             self.display()
+    
+    def setWidth(self, width):
+        self.width = width
+        self.display()
+    
+    def setLength(self, length):
+        self.length = length
+        self.display()
 
     def init(self):
         self.state = 1
@@ -51,16 +63,16 @@ class Weiche(Drawable):
 
 class WeicheEditor(Drawable):
     def __init__(self, canvas, x, y, dir0=0, dir1=45, sw0=[22, 23], sw1=[24, 25]):
-        super().__init__(canvas, x, y)
-        self.size = 20
+        super().__init__(canvas, x, y, None)
+        self.length = 20
         self.directions = [dir0, dir1]
         self.switches = [sw0, sw1]
         self.display()
 
     def display(self):
         self.delete()
-        self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[0])), self.y + self.size * sin(radians(self.directions[0])), fill="red", width=2))
-        self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.size * cos(radians(self.directions[1])), self.y + self.size * sin(radians(self.directions[1])), fill="green", width=2))
+        self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.length * cos(radians(self.directions[0])), self.y + self.length * sin(radians(self.directions[0])), fill="red", width=2))
+        self.ids.append(self.canvas.create_line(self.x, self.y, self.x + self.length * cos(radians(self.directions[1])), self.y + self.length * sin(radians(self.directions[1])), fill="green", width=2))
         self.ids.append(self.canvas.create_text(self.x + 10, self.y + 10, text=str(self.switches[0]), fill="white"))
         self.ids.append(self.canvas.create_text(self.x + 10, self.y + 20, text=str(self.switches[1]), fill="white"))
 
@@ -82,7 +94,7 @@ class WeicheEditor(Drawable):
 
 class WeichenGroup(Drawable):
     def __init__(self, canvas, grid, gleis):
-        super().__init__(canvas, None, None)
+        super().__init__(canvas, None, None, None)
         self.grid = grid
         self.gleis = gleis
         self.weichen = {}
