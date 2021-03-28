@@ -27,31 +27,30 @@ class Weiche:
         self.ids = []
 
     def toggle(self):
-        data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
-        out = bytes(str(data), 'ascii')
-        self.serial.write(out)
-        
         if self.state == 1:
             self.state = 0
         else:
             self.state = 1
+        self.sendSerial()
         self.display()
 
     def setState(self, state):
         if self.state != state:
             self.state = state
-            data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
-            out = bytes(str(data), 'ascii')
-            self.serial.write(out)
+            self.sendSerial()
             self.display()
 
     
     def init(self):
         self.state = 1
+        self.sendSerial()
+        self.display()
+    
+    def sendSerial(self):
         data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
         out = bytes(str(data), 'ascii')
         self.serial.write(out)
-        self.display()
+
 
     def setSwitches(self, sw):
         self.switches = sw
