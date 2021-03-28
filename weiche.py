@@ -11,7 +11,7 @@ class Weiche:
         self.y = y
         self.state = 0
         self.size = 20
-        self.directions = [dir0, dir1] 
+        self.directions = [dir1, dir0] 
         self.switches = switches
 
         self.ids = []

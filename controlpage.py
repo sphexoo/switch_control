@@ -125,7 +125,7 @@ class ControlPage(Page):
     def initWeichen(self):
         for key in self.weichen:
             self.weichen[key].init()
-            sleep(0.05)
+            sleep(0.1)
 
     def asyncSetWeichen(self, keys_and_states):
         thread = Thread(target=self.setWeichen, daemon=True, args=(keys_and_states,))
@@ -134,4 +134,4 @@ class ControlPage(Page):
     def setWeichen(self, keys_and_states):
         for key in keys_and_states:
             self.weichen[key].setState(keys_and_states[key])
-            sleep(0.05)
+            sleep(0.1)
