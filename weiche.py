@@ -130,8 +130,8 @@ class WeichenGroup:
         x0, y0 = self.grid.getPosition(self.gleis[0], self.gleis[1])
         for key in self.weichen:
             x1, y1 = self.grid.getPosition(key[0], key[1])
-            self.ids.append(self.canvas.create_line(x0, y0, x1, y1, fill="yellow", dash=(5,)))
-            self.ids.append(self.canvas.create_text(x1, y1 - 10, fill="yellow", text=self.weichen[key]))
+            self.ids.append(self.canvas.create_line(x0, y0, x1, y1, fill="orange", dash=(5,)))
+            self.ids.append(self.canvas.create_text(x1, y1 - 10, fill="orange", text=self.weichen[key]))
 
     def addWeiche(self, key, state):
         self.weichen[key] = state

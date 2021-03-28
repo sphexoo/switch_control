@@ -289,7 +289,7 @@ class EditorPage(Page):
                 self.selector1.hide()
                 return
             
-            user_input = simpledialog.askstring("Weiche", "State [0/1]")
+            user_input = simpledialog.askstring("Weiche", "State [0: grün/1: rot]")
             try:
                 state = int(user_input)
             except:
