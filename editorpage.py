@@ -6,8 +6,7 @@ from selector import Selector
 from line import Line
 from page import Page
 from gleis import GleisEditor
-from weiche import WeicheEditor
-
+from weiche import WeicheEditor, WeichenGroup
 
 
 class EditorPage(Page):
@@ -36,6 +35,7 @@ class EditorPage(Page):
         self.menu_insert = tk.Menu(self.menu)
         self.menu_insert.add_command(label="Linie", command=lambda: self.setCurrentItem("Linie"))
         self.menu_insert.add_command(label="Weiche", command=lambda: self.setCurrentItem("Weiche"))
+        self.menu_insert.add_command(label="Weichengruppe", command=lambda: self.setCurrentItem("Weichengruppe"))
         self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
         self.menu.add_cascade(label="Einfügen", menu=self.menu_insert)
 
@@ -58,16 +58,16 @@ class EditorPage(Page):
         self.selector1 = Selector(self.canvas, color="blue")
         self.selector2 = Selector(self.canvas, color="green")
 
-        self.canvas.addtag_all("all")
 
     def setCurrentItem(self, item):
         self.selector1.hide()
         self.selector2.hide()
         self.current_item = item
 
+
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[]}
+        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[], "weichengroups":[]}
         for key in self.lines:
             data["lines"].append([key[0][0], key[0][1], key[1][0], key[1][1]])
         for key in self.weichen:
@@ -75,11 +75,21 @@ class EditorPage(Page):
             sw0, sw1 = self.weichen[key].getSwitches()
             data["weichen"].append([key[0], key[1], dir0, dir1, sw0, sw1])
         for key in self.gleise:
-            data["gleise"].append([key[0], key[1]])
+            gleisId = self.gleise[key].getGleisId()
+            groupId = self.gleise[key].getGroupId()
+            data["gleise"].append([key[0], key[1], gleisId, groupId])
+        for key in self.weichengroups:
+            gleis = self.weichengroups[key].getGleis()
+            weichen_dict = self.weichengroups[key].getWeichen()
+            weichen = []
+            for key, value in weichen_dict.items():
+                weichen.append([key, value])
+            data["weichengroups"].append([gleis, weichen])
 
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
             json.dump(data, f)
+
 
     def loadFromJson(self):
         # load data from file 
@@ -104,25 +114,43 @@ class EditorPage(Page):
         if "gleise" in data:
             for gleis in data["gleise"]:
                 x, y = self.grid.getPosition(gleis[0], gleis[1])
-                self.gleise[(gleis[0], gleis[1])] = GleisEditor(self.canvas, x, y)
+                self.gleise[(gleis[0], gleis[1])] = GleisEditor(self.canvas, x, y, gleisId=gleis[2], groupId=gleis[3])
+        if "weichengroups" in data:
+            for wg in data["weichengroups"]:
+                self.weichengroups[tuple(wg[0])] = WeichenGroup(self.canvas, self.grid, tuple(wg[0]))
+                weichen = {}
+                for weiche in wg[1]:
+                    weichen[tuple(weiche[0])] = weiche[1]
+                self.weichengroups[tuple(wg[0])].setWeichen(weichen)
 
 
     def onMousePressed(self, event):
+        if not self.selector1.isActive():
+            gridX, gridY = self.grid.getGridPosition(event.x, event.y)
+            x, y = self.grid.getPosition(gridX, gridY)
+            self.selector1.setPosition(x, y)
+            return
         if self.current_item == "Linie":
             self.handleLinie(event)
         elif self.current_item == "Weiche":
             self.handleWeiche(event)
         elif self.current_item == "Gleis":
             self.handleGleis(event)
+        elif self.current_item == "Weichengruppe":
+            self.handleWeichengruppe(event)
     
+
     def onKeyPressed(self, event):
         if event.keysym  == "Delete":
             if not self.selector1.isActive():
                 return
             self.handleDelete()
             self.selector2.hide()
+        elif event.keysym == "BackSpace":
+            self.selector1.hide()
+            self.selector2.hide()
             
-        
+    
     def handleDelete(self):
         x, y = self.selector1.getPosition()
         self.selector1.hide()
@@ -151,15 +179,16 @@ class EditorPage(Page):
             for key in keys_to_delete:
                 self.gleise[key].delete()
                 del self.gleise[key]
+        elif self.current_item == "Weichengruppe":
+            if (gridX, gridY) in self.weichengroups:
+                self.weichengroups[(gridX, gridY)].delete()
+                del self.weichengroups[(gridX, gridY)]
 
 
     def handleLinie(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if event.num == 1:
-            if not self.selector1.isActive():
-                x, y = self.grid.getPosition(gridX, gridY)
-                self.selector1.setPosition(x, y)
-            elif not self.selector2.isActive():
+            if not self.selector2.isActive():
                 x, y = self.grid.getPosition(gridX, gridY)
                 self.selector2.setPosition(x, y)
             elif self.selector1.isActive() and self.selector2.isActive():
@@ -179,10 +208,6 @@ class EditorPage(Page):
     def handleWeiche(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if event.num == 1:
-            if not self.selector1.isActive():
-                x, y = self.grid.getPosition(gridX, gridY)
-                self.selector1.setPosition(x, y)
-                return
             x, y = self.selector1.getPosition()
             gridX, gridY = self.grid.getGridPosition(x, y)
             if (gridX, gridY) in self.weichen:
@@ -205,19 +230,80 @@ class EditorPage(Page):
                 self.weichen[(gridX, gridY)].updateSwitches(s0, s1)
             self.selector1.hide()
 
+
     def handleGleis(self, event):
-        gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if event.num == 1:
-            if not self.selector1.isActive():
-                x, y = self.grid.getPosition(gridX, gridY)
-                self.selector1.setPosition(x, y)
-                return
             x, y = self.selector1.getPosition()
             gridX, gridY = self.grid.getGridPosition(x, y)
+            if (gridX, gridY) in self.gleise:
+                user_input = simpledialog.askstring("Gruppe", "Gruppen ID")
+                try:
+                    groupId = int(user_input)
+                except:
+                    groupId = None
+                self.gleise[(gridX, gridY)].setGroupId(groupId)
+                self.selector1.hide()
+                return
             self.gleise[(gridX, gridY)] = GleisEditor(self.canvas, x, y)
             self.selector1.hide()
+        elif event.num == 3:
+            x, y = self.selector1.getPosition()
+            gridX, gridY = self.grid.getGridPosition(x, y)
+            if (gridX, gridY) in self.gleise:
+                user_input = simpledialog.askstring("Gleis", "Gleis ID")
+                try:
+                    gleisId = int(user_input)
+                except:
+                    gleisId = None
+                self.gleise[(gridX, gridY)].setGleisId(gleisId)
+                self.selector1.hide()
+
         
+    def handleWeichengruppe(self, event):
+        # check if selector 1 points to a gleis
+        x, y = self.selector1.getPosition()
+        gridX1, gridY1 = self.grid.getGridPosition(x, y)
+        isGleis = False
+        for key in self.gleise:
+            if key == (gridX1, gridY1):
+                isGleis = True
+                break
+        if not isGleis:
+            self.selector1.hide()
+            return
+        # show only connections for current weichengroup
+        for key in self.weichengroups:
+            self.weichengroups[key].delete()
+        if (gridX1, gridY1) in self.weichengroups:
+            self.weichengroups[(gridX1, gridY1)].display()
+        
+        if event.num == 1:
+            gridX2, gridY2 = self.grid.getGridPosition(event.x, event.y)
+            # check if selector 2 points to a weiche
+            isWeiche = False
+            for key in self.weichen:
+                if key == (gridX2, gridY2):
+                    isWeiche = True
+                    break
+            if not isWeiche:
+                self.selector1.hide()
+                return
+            
+            user_input = simpledialog.askstring("Weiche", "State [0/1]")
+            try:
+                state = int(user_input)
+            except:
+                state = 0
+            if not (gridX1, gridY1) in self.weichengroups:
+                self.weichengroups[(gridX1, gridY1)] = WeichenGroup(self.canvas, self.grid, (gridX1, gridY1))
+            self.weichengroups[(gridX1, gridY1)].addWeiche((gridX2, gridY2), state)
+            self.selector1.hide()
+            self.selector2.hide()
+        elif event.num == 3:
+            self.selector1.hide()
+            self.selector2.hide()
     
+
     def setGrid(self, gridX=None, gridY=None):
         if not gridX:
             gridX = self.grid.getGridX()
@@ -227,17 +313,20 @@ class EditorPage(Page):
         self.grid.delete()
         self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)
 
+
     def setGridX(self):
         user_input = simpledialog.askstring("Bearbeiten", "Raster X")
         if user_input and user_input.isdigit():
             gridX = int(user_input)
             self.setGrid(gridX=gridX)
 
+
     def setGridY(self):
         user_input = simpledialog.askstring("Bearbeiten", "Raster Y")
         if user_input and user_input.isdigit():
             gridY = int(user_input)
             self.setGrid(gridY=gridY)
+
 
     def setLineWidth(self):
         user_input = simpledialog.askstring("Bearbeiten", "Linienbreite")
@@ -246,6 +335,7 @@ class EditorPage(Page):
             self.lineWidth = width
             for key in self.lines:
                 self.canvas.itemconfig(self.lines[key].getId(), width=self.lineWidth)
+
 
     def autoscale(self):
         """ Resize grid to fit all currently drawn objects. """
@@ -260,7 +350,6 @@ class EditorPage(Page):
         
         tmp = {}
         for key in self.lines:
-            #self.lines[key].delete()
             x0, y0 = self.grid.getPosition(key[0][0] - minX + 1, key[0][1]- minY + 1)
             x1, y1 = self.grid.getPosition(key[1][0] - minX + 1, key[1][1]- minY + 1)
             self.lines[key].updatePosition(x0, y0, x1, y1)
@@ -271,7 +360,6 @@ class EditorPage(Page):
             x, y = self.grid.getPosition(key[0] - minX + 1, key[1]- minY + 1)
             self.weichen[key].updatePosition(x, y)
             tmp[(key[0] - minX + 1, key[1] - minY + 1)] = self.weichen[key]
-            #self.weichen[key].delete()
         self.weichen = tmp
 
         maxX = 0
@@ -288,7 +376,7 @@ class EditorPage(Page):
         for key in self.lines:
             x0, y0 = self.grid.getPosition(key[0][0], key[0][1])
             x1, y1 = self.grid.getPosition(key[1][0], key[1][1])
-            self.lines[key].updatePosition(x0, y0, x1, y1)# = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+            self.lines[key].updatePosition(x0, y0, x1, y1)
             tmp[key] = self.lines[key]
         self.lines = tmp
         tmp = {}
@@ -298,5 +386,3 @@ class EditorPage(Page):
             tmp[key] = self.weichen[key]
         self.weichen = tmp
         
-
-

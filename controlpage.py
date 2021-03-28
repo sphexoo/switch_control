@@ -7,7 +7,7 @@ from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
-from weiche import Weiche
+from weiche import Weiche, WeichenGroup
 from gleis import Gleis
 
 
@@ -56,7 +56,6 @@ class ControlPage(Page):
         self.setGrid(gridX=data["dimensions"][0], gridY=data["dimensions"][1])
         if "lines" in data:
             for line in data["lines"]:
-
                 x0, y0 = self.grid.getPosition(line[0], line[1])
                 x1, y1 = self.grid.getPosition(line[2], line[3])
                 self.lines[((line[0], line[1]), (line[2], line[3]))] = Line(self.canvas, x0, y0, x1, y1, width=self.lineWidth)
@@ -70,17 +69,28 @@ class ControlPage(Page):
         if "gleise" in data:
             for gleis in data["gleise"]:
                 x, y = self.grid.getPosition(gleis[0], gleis[1])
-                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y)
+                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y, gleis[2], gleis[3])
+        if "weichengroups" in data:
+            for wg in data["weichengroups"]:
+                self.weichengroups[tuple(wg[0])] = WeichenGroup(self.canvas, self.grid, tuple(wg[0]))
+                weichen = {}
+                for weiche in wg[1]:
+                    weichen[tuple(weiche[0])] = weiche[1]
+                self.weichengroups[tuple(wg[0])].setWeichen(weichen)
 
     def onMousePressed(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
         if (gridX, gridY) in self.weichen:
             self.weichen[(gridX, gridY)].toggle()
         elif (gridX, gridY) in self.gleise:
+            groupId = self.gleise[(gridX, gridY)].getGroupId()
             for key in self.gleise:
                 if key == (gridX, gridY):
                     self.gleise[key].activate()
-                else:
+                    if key in self.weichengroups:
+                        weichen = self.weichengroups[key].getWeichen()
+                        self.asyncSetWeichen(weichen)
+                elif self.gleise[key].getGroupId() == groupId:
                     self.gleise[key].deactivate()
 
     def setLineWidth(self):
@@ -117,12 +127,11 @@ class ControlPage(Page):
             self.weichen[key].init()
             sleep(0.05)
 
-    
     def asyncSetWeichen(self, keys_and_states):
         thread = Thread(target=self.setWeichen, daemon=True, args=(keys_and_states,))
         thread.start()
 
     def setWeichen(self, keys_and_states):
-        for key, state in keys_and_states:
-            self.weichen[key].setState(state)
+        for key in keys_and_states:
+            self.weichen[key].setState(keys_and_states[key])
             sleep(0.05)

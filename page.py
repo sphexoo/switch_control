@@ -10,6 +10,8 @@ class Page():
         self.lines = {}
         self.weichen = {}
         self.gleise = {}
+        self.weichengroups = {}
+        self.gleisgroup = {}
 
     def show(self):
         self.master.config(menu=self.menu)
@@ -41,9 +43,12 @@ class Page():
             self.weichen[key].delete()
         for key in self.gleise:
             self.gleise[key].delete()
+        for key in self.weichengroups:
+            self.weichengroup[key].delete()
         self.lines = {}
         self.weichen = {}
         self.gleise = {}
+        self.weichengroups = {}
     
         self.master.update()
         self.canvas.update()
