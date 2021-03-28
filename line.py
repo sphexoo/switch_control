@@ -19,7 +19,7 @@ class Line():
         return self.x0, self.y0, self.x1, self.y1
 
     def getId(self): 
-        return self.id
+        return self.ids[0]
 
     def delete(self):
         for id in self.ids:

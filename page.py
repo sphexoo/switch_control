@@ -44,7 +44,7 @@ class Page():
         for key in self.gleise:
             self.gleise[key].delete()
         for key in self.weichengroups:
-            self.weichengroup[key].delete()
+            self.weichengroups[key].delete()
         self.lines = {}
         self.weichen = {}
         self.gleise = {}
