@@ -1,11 +1,24 @@
 import tkinter as tk
+from grid import Grid
 
 
 class Page():
-    def __init__(self, master, parent):
-        self.parent = parent
+    def __init__(self, master):
         self.master = master
-        self.frame = tk.Frame(master)
+        self.frame = tk.Frame(self.master)
+        self.frame.pack()
+        self.frame.update()
+
+        self.canvas = tk.Canvas(self.frame,
+                        width=self.master.winfo_width(),
+                        height=self.master.winfo_height(),
+                        bg="gray64",
+                        borderwidth=0,
+                        highlightthickness=0)
+        self.canvas.pack()
+        self.canvas.update()
+
+        self.grid = Grid(self.canvas)
 
         self.lines = {}
         self.weichen = {}
@@ -15,6 +28,7 @@ class Page():
     def show(self):
         self.master.config(menu=self.menu)
         self.frame.pack()
+        self.frame.update()
 
     def hide(self):
         self.frame.pack_forget()

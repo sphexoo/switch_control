@@ -13,18 +13,19 @@ from gleis import Gleis
 
 
 class ControlPage(Page):
-    def __init__(self, master, parent, serial):
-        super().__init__(master, parent)
+    def __init__(self, master, serial):
+        super().__init__(master)
         self.cfg = {}
         self.loadView() # defaults to default view if cfg.json is not found
 
         self.serial = serial
+        self.fullscreen = True
         
         self.menu = tk.Menu(self.frame)
 
         self.menu_file = tk.Menu(self.menu, tearoff=False)
         self.menu_file.add_command(label="Öffnen", command=self.loadFromJson)
-        self.menu_file.add_command(label="Editor starten", command=self.parent.openEditor)
+        self.menu_file.add_command(label="Editor starten", command=self.master.openEditor)
         self.menu.add_cascade(label="Datei", menu=self.menu_file)
 
         self.menu_customize = tk.Menu(self.menu, tearoff=False)
@@ -33,7 +34,9 @@ class ControlPage(Page):
         self.menu.add_cascade(label="Bearbeiten", menu=self.menu_customize)
 
         self.menu_view = tk.Menu(self.menu, tearoff=False)
-        
+
+        self.menu_view.add_command(label="Vollbild", command=self.setFullscreen)
+        self.menu_view.insert_separator(1)
         self.menu_view.add_command(label="Ansicht speichern", command=self.saveView)
 
         self.menu_view_line = tk.Menu(self.menu_view, tearoff=False)
@@ -61,18 +64,16 @@ class ControlPage(Page):
 
         self.master.config(menu=self.menu)
 
-        self.canvas = tk.Canvas(self.frame,
-                                width=self.master.winfo_width(),
-                                height=self.master.winfo_height(),
-                                bg=self.cfg["backgroundColor"],
-                                borderwidth=0,
-                                highlightthickness=0)
-        self.canvas.pack()
 
-        self.canvas.update()
+        self.canvas.configure(bg=self.cfg["backgroundColor"])
+
+
         self.width = self.canvas.winfo_width()
         self.height = self.canvas.winfo_height()
-        self.grid = Grid(self.canvas)
+
+
+        if self.cfg["standardDir"]:
+            self.loadFromJson(self.cfg["standardDir"])
 
 
     def setDefaultView(self):
@@ -83,7 +84,9 @@ class ControlPage(Page):
         self.cfg["weicheColor"] = "#ff0000"
         self.cfg["gleisSize"] = 10
         self.cfg["gleisColor"] = ["#00ff00", "#ff0000"]
-        self.cfg["backgroundColor"] = "#ff0000"
+        self.cfg["backgroundColor"] = "#ffffff"
+        self.cfg["standardDir"] = None
+
 
     def saveView(self):
         with open("cfg.json", "w") as f:
@@ -101,17 +104,20 @@ class ControlPage(Page):
             self.cfg["gleisSize"] = data["gleisSize"]
             self.cfg["gleisColor"] = data["gleisColor"]
             self.cfg["backgroundColor"] = data["backgroundColor"]
+            self.cfg["standardDir"] = data["standardDir"]
         except:
             self.setDefaultView()
 
 
-    def loadFromJson(self):
+    def loadFromJson(self, directory=None):
         # load data from file 
-        directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if not directory:
+            directory = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         if not directory:
             return
         with open(directory, 'r') as f:
             data = json.load(f)
+        self.cfg["standardDir"] = directory
         self.clearCanvas()
         self.setGrid(gridX=data["dimensions"][0], gridY=data["dimensions"][1])
         if "lines" in data:
@@ -137,6 +143,7 @@ class ControlPage(Page):
                 for weiche in wg[1]:
                     weichen[tuple(weiche[0])] = weiche[1]
                 self.weichengroups[tuple(wg[0])].setWeichen(weichen)
+        self.updateControls()
 
     def onMousePressed(self, event):
         gridX, gridY = self.grid.getGridPosition(event.x, event.y)
@@ -158,9 +165,8 @@ class ControlPage(Page):
             gridX = self.grid.getGridX()
         if not gridY:
             gridY = self.grid.getGridY()
-        isActive = self.grid.getIsActive()
         self.grid.delete()
-        self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)
+        self.grid = Grid(self.canvas, gridX, gridY)
 
     def updateControls(self):
         for key in self.weichen:
@@ -169,6 +175,19 @@ class ControlPage(Page):
         for key in self.gleise:
             x, y = self.grid.getPosition(key[0], key[1])
             self.gleise[key].setPosition(x, y)
+    
+
+    def onResize(self, event):
+        self.master.update()
+        width_new = self.master.winfo_width()
+        height_new = self.master.winfo_height()
+        self.canvas.config(width=width_new, height=height_new)
+        self.canvas.scale("all", 0, 0, width_new / self.width, height_new / self.height)
+        self.width = width_new
+        self.height = height_new
+        self.grid.onResize()
+        self.updateControls()
+
 
     def asyncInitWeichen(self):
         thread = Thread(target=self.initWeichen, daemon=True)
@@ -254,4 +273,9 @@ class ControlPage(Page):
         if color[1]:
             self.cfg["backgroundColor"] = color[1]
             self.canvas.configure(bg=self.cfg["backgroundColor"])
+
+    def setFullscreen(self):
+        self.master.attributes('-fullscreen', self.fullscreen)
+        self.fullscreen = not self.fullscreen
+
 

@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, simpledialog
 import json
-from grid import Grid
 from selector import Selector
 from line import Line
 from page import Page
@@ -10,8 +9,8 @@ from weiche import WeicheEditor, WeichenGroup
 
 
 class EditorPage(Page):
-    def __init__(self, master, parent):
-        super().__init__(master, parent)
+    def __init__(self, master):
+        super().__init__(master)
 
         self.lineWidth = 10
         self.current_item = "Linie"
@@ -22,7 +21,7 @@ class EditorPage(Page):
         self.menu_file.add_command(label="Neu", command=self.clearCanvas)
         self.menu_file.add_command(label="Öffnen", command=self.loadFromJson)
         self.menu_file.add_command(label="Speichern unter", command=self.saveToJson)
-        self.menu_file.add_command(label="Editor beenden", command=self.parent.exitEditor)
+        self.menu_file.add_command(label="Editor beenden", command=self.master.exitEditor)
         self.menu.add_cascade(label="Datei", menu=self.menu_file)
 
         self.menu_edit = tk.Menu(self.menu, tearoff=False)
@@ -41,17 +40,9 @@ class EditorPage(Page):
 
         self.master.config(menu=self.menu)
 
-        self.canvas = tk.Canvas(self.frame,
-                                width=self.master.winfo_width(),
-                                height=self.master.winfo_height(),
-                                bg="gray64",
-                                borderwidth=0,
-                                highlightthickness=0)
-        
-        self.canvas.pack()
-        self.grid = Grid(self.canvas, isActive=True)
 
-        self.canvas.update()
+        self.grid.display()
+
         self.width = self.canvas.winfo_width()
         self.height = self.canvas.winfo_height()
 
