@@ -4,6 +4,7 @@ import json
 from selector import Selector
 from line import Line
 from page import Page
+from grid import Grid
 from gleis import GleisEditor
 from weiche import WeicheEditor, WeichenGroup
 
@@ -15,7 +16,7 @@ class EditorPage(Page):
         self.lineWidth = 10
         self.current_item = "Linie"
 
-        self.menu = tk.Menu(self.frame)
+        self.menu = tk.Menu(self)
 
         self.menu_file = tk.Menu(self.menu, tearoff=False)
         self.menu_file.add_command(label="Neu", command=self.clearCanvas)
@@ -300,9 +301,9 @@ class EditorPage(Page):
             gridX = self.grid.getGridX()
         if not gridY:
             gridY = self.grid.getGridY()
-        isActive = self.grid.getIsActive()
         self.grid.delete()
-        self.grid = Grid(self.canvas, gridX, gridY, isActive=isActive)
+        self.grid = Grid(self.canvas, gridX, gridY)
+        self.grid.display()
 
 
     def setGridX(self):

@@ -21,7 +21,7 @@ class ControlPage(Page):
         self.serial = serial
         self.fullscreen = True
         
-        self.menu = tk.Menu(self.frame)
+        self.menu = tk.Menu(self)
 
         self.menu_file = tk.Menu(self.menu, tearoff=False)
         self.menu_file.add_command(label="Öffnen", command=self.loadFromJson)

@@ -2,14 +2,14 @@ import tkinter as tk
 from grid import Grid
 
 
-class Page():
+class Page(tk.Frame):
     def __init__(self, master):
+        super().__init__(master)
         self.master = master
-        self.frame = tk.Frame(self.master)
-        self.frame.pack()
-        self.frame.update()
+        self.pack()
+        self.update()
 
-        self.canvas = tk.Canvas(self.frame,
+        self.canvas = tk.Canvas(self,
                         width=self.master.winfo_width(),
                         height=self.master.winfo_height(),
                         bg="gray64",
@@ -27,11 +27,11 @@ class Page():
         
     def show(self):
         self.master.config(menu=self.menu)
-        self.frame.pack()
-        self.frame.update()
+        self.pack()
+        self.update()
 
     def hide(self):
-        self.frame.pack_forget()
+        self.pack_forget()
 
     def onKeyPressed(self, event):
         pass

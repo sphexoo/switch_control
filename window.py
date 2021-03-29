@@ -1,10 +1,13 @@
 import tkinter as tk
+import serial as ser
+from time import sleep
 from editorpage import EditorPage
 from controlpage import ControlPage
 
-import serial as ser
-from time import sleep
-from pseudoserial import PseudoSerial
+
+class PseudoSerial:
+    def write(self, data):
+        print("Writing " + str(data))
 
 
 class Window(tk.Tk):
@@ -20,13 +23,13 @@ class Window(tk.Tk):
         self.height = self.winfo_height()
 
         self.current_page = None
-        self.current_control = 0
 
         try:
             self.serial = ser.Serial(baudrate=9600, port="COM3", timeout=2)
             sleep(2)
         except:
             self.serial = PseudoSerial()
+
         self.control_page = ControlPage(self, self.serial)
         self.editor_page = EditorPage(self)
         self.current_page = self.control_page
