@@ -135,7 +135,7 @@ class ControlPage(Page):
         if "gleise" in data:
             for gleis in data["gleise"]:
                 x, y = self.grid.getPosition(gleis[0], gleis[1])
-                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y, self.cfg["gleisColor"], gleis[2], gleis[3], self.cfg["gleisSize"])
+                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y, self.cfg["gleisColor"],  gleis[2], self.cfg["gleisSize"])
         if "weichengroups" in data:
             for wg in data["weichengroups"]:
                 self.weichengroups[tuple(wg[0])] = WeichenGroup(self.canvas, self.grid, tuple(wg[0]))

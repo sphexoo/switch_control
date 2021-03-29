@@ -1,9 +1,8 @@
 from drawable import Drawable
 
 class Gleis(Drawable):
-    def __init__(self, canvas, x, y, color, gleisId, groupId, size):
+    def __init__(self, canvas, x, y, color, groupId, size):
         super().__init__(canvas, x, y, color)
-        self.gleisId = gleisId
         self.groupId = groupId
         self.weichen = []
         self.states = []
@@ -48,9 +47,8 @@ class Gleis(Drawable):
 
 
 class GleisEditor(Drawable):
-    def __init__(self, canvas, x, y, gleisId=None, groupId=None):
+    def __init__(self, canvas, x, y, groupId=None):
         super().__init__(canvas, x, y, None)
-        self.gleisId = gleisId
         self.groupId = groupId
         self.weichen = []
         self.states = []
@@ -63,7 +61,6 @@ class GleisEditor(Drawable):
         self.delete()
         self.ids.append(self.canvas.create_rectangle(self.x - self.size, self.y - self.size, self.x + self.size, self.y + self.size, fill='red'))
         self.ids.append(self.canvas.create_text(self.x + 5, self.y - 15, text=str(self.groupId), fill="brown"))
-        self.ids.append(self.canvas.create_text(self.x + 5, self.y + 15, text=str(self.gleisId), fill="purple"))
 
     def activate(self):
         self.state = True
@@ -83,10 +80,3 @@ class GleisEditor(Drawable):
     
     def getGroupId(self):
         return self.groupId
-    
-    def setGleisId(self, gleisId):
-        self.gleisId = gleisId
-        self.display()
-    
-    def getGleisId(self):
-        return self.gleisId

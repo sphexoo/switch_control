@@ -67,9 +67,8 @@ class EditorPage(Page):
             sw0, sw1 = self.weichen[key].getSwitches()
             data["weichen"].append([key[0], key[1], dir0, dir1, sw0, sw1])
         for key in self.gleise:
-            gleisId = self.gleise[key].getGleisId()
             groupId = self.gleise[key].getGroupId()
-            data["gleise"].append([key[0], key[1], gleisId, groupId])
+            data["gleise"].append([key[0], key[1], groupId])
         for key in self.weichengroups:
             gleis = self.weichengroups[key].getGleis()
             weichen_dict = self.weichengroups[key].getWeichen()
@@ -106,7 +105,7 @@ class EditorPage(Page):
         if "gleise" in data:
             for gleis in data["gleise"]:
                 x, y = self.grid.getPosition(gleis[0], gleis[1])
-                self.gleise[(gleis[0], gleis[1])] = GleisEditor(self.canvas, x, y, gleisId=gleis[2], groupId=gleis[3])
+                self.gleise[(gleis[0], gleis[1])] = GleisEditor(self.canvas, x, y, groupId=gleis[2])
         if "weichengroups" in data:
             for wg in data["weichengroups"]:
                 self.weichengroups[tuple(wg[0])] = WeichenGroup(self.canvas, self.grid, tuple(wg[0]))
@@ -238,17 +237,6 @@ class EditorPage(Page):
                 return
             self.gleise[(gridX, gridY)] = GleisEditor(self.canvas, x, y)
             self.selector1.hide()
-        elif event.num == 3:
-            x, y = self.selector1.getPosition()
-            gridX, gridY = self.grid.getGridPosition(x, y)
-            if (gridX, gridY) in self.gleise:
-                user_input = simpledialog.askstring("Gleis", "Gleis ID")
-                try:
-                    gleisId = int(user_input)
-                except:
-                    gleisId = None
-                self.gleise[(gridX, gridY)].setGleisId(gleisId)
-                self.selector1.hide()
 
         
     def handleWeichengruppe(self, event):
