@@ -118,7 +118,7 @@ class ControlPage(Page):
             for line in data["lines"]:
                 x0, y0 = self.grid.getPosition(line[0], line[1])
                 x1, y1 = self.grid.getPosition(line[2], line[3])
-                self.lines[((line[0], line[1]), (line[2], line[3]))] = Line(self.canvas, x0, y0, x1, y1, self.cfg["lineColor"], width=self.cfg["lineWidth"])
+                self.lines[((line[0], line[1]), (line[2], line[3]))] = Line(self.canvas, x0, y0, x1, y1, color=self.cfg["lineColor"], width=self.cfg["lineWidth"])
         if "weichen" in data:
             for weiche in data["weichen"]:
                 x, y = self.grid.getPosition(weiche[0], weiche[1])

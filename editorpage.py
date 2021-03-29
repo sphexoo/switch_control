@@ -106,7 +106,7 @@ class EditorPage(Page):
             for line in data["lines"]:
                 x0, y0 = self.grid.getPosition(line[0], line[1])
                 x1, y1 = self.grid.getPosition(line[2], line[3])
-                self.lines[((line[0], line[1]), (line[2], line[3]))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+                self.lines[((line[0], line[1]), (line[2], line[3]))] = Line(self.canvas, x0, y0, x1, y1, width=self.lineWidth)
         if "weichen" in data:
             for weiche in data["weichen"]:
                 x, y = self.grid.getPosition(weiche[0], weiche[1])
@@ -197,7 +197,7 @@ class EditorPage(Page):
                 gx0, gy0 = self.grid.getGridPosition(x0, y0)
                 gx1, gy1 = self.grid.getGridPosition(x1, y1)
                 if not (((gx0, gy0), (gx1, gy1)) in self.lines or ((gx1, gy1), (gx0, gy0)) in self.lines):
-                    self.lines[((gx0, gy0), (gx1, gy1))] = Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+                    self.lines[((gx0, gy0), (gx1, gy1))] = Line(self.canvas, x0, y0, x1, y1, width=self.lineWidth)
                 self.selector1.hide()
                 self.selector2.hide()
         elif event.num == 3:
@@ -354,7 +354,7 @@ class EditorPage(Page):
             x0, y0 = self.grid.getPosition(key[0][0] - minX + 1, key[0][1]- minY + 1)
             x1, y1 = self.grid.getPosition(key[1][0] - minX + 1, key[1][1]- minY + 1)
             self.lines[key].setPosition(x0, y0, x1, y1)
-            tmp[((key[0][0] - minX + 1, key[0][1] - minY + 1), (key[1][0] - minX + 1, key[1][1] - minY + 1))] = self.lines[key] #Line(self.canvas, x0, y0, x1, y1, self.lineWidth)
+            tmp[((key[0][0] - minX + 1, key[0][1] - minY + 1), (key[1][0] - minX + 1, key[1][1] - minY + 1))] = self.lines[key]
         self.lines = tmp
         tmp = {}
         for key in self.weichen:

@@ -2,7 +2,7 @@ import tkinter as tk
 from drawable import Drawable
 
 class Line(Drawable):
-    def __init__(self, canvas, x0, y0, x1, y1, color, width=30):
+    def __init__(self, canvas, x0, y0, x1, y1, width=30, color="black"):
         super().__init__(canvas, x0, y0, color)
         self.x1 = x1
         self.y1 = y1
