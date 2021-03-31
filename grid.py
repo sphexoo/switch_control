@@ -22,7 +22,8 @@ class Grid(Drawable):
             pos_y= y * self.offsetY + self.offsetY
             self.ids.append(self.canvas.create_line(0, pos_y, width, pos_y, fill="gray50"))
         for id in self.ids:
-            self.canvas.addtag_withtag("all", id)
+            self.canvas.addtag_withtag("grid", id)
+        self.canvas.tag_lower("grid")
 
     def getGridPosition(self, mX, mY):
         self.canvas.update()
@@ -36,6 +37,7 @@ class Grid(Drawable):
         return self.offsetX * gridX, self.offsetY * gridY
 
     def onResize(self):
+        self.canvas.update()
         self.offsetX = self.canvas.winfo_width() / (self.gridX + 1)
         self.offsetY = self.canvas.winfo_height() / (self.gridY + 1)
 

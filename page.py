@@ -39,6 +39,9 @@ class Page(tk.Frame):
     def onMousePressed(self, event):
         pass
 
+    def updateControls(self):
+        pass
+
     def onResize(self, event):
         self.master.update()
         width_new = self.master.winfo_width()
@@ -47,6 +50,8 @@ class Page(tk.Frame):
         self.canvas.scale("all", 0, 0, width_new / self.width, height_new / self.height)
         self.width = width_new
         self.height = height_new
+        self.grid.onResize()
+        self.updateControls()
 
     def clearCanvas(self):
         # delete current line objects from canvas

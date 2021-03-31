@@ -20,6 +20,9 @@ class ControlPage(Page):
 
         self.serial = serial
         self.fullscreen = True
+
+        if self.cfg["enableGrid"]:
+            self.grid.display()
         
         self.menu = tk.Menu(self)
 
@@ -38,6 +41,8 @@ class ControlPage(Page):
         self.menu_view.add_command(label="Vollbild", command=self.setFullscreen)
         self.menu_view.insert_separator(1)
         self.menu_view.add_command(label="Ansicht speichern", command=self.saveView)
+
+        self.menu_view.add_command(label="Raster EIN/AUS", command=self.toggleGrid)
 
         self.menu_view_line = tk.Menu(self.menu_view, tearoff=False)
         self.menu_view_line.add_command(label="Breite", command=self.setLineWidth)
@@ -64,13 +69,10 @@ class ControlPage(Page):
 
         self.master.config(menu=self.menu)
 
-
         self.canvas.configure(bg=self.cfg["backgroundColor"])
-
 
         self.width = self.canvas.winfo_width()
         self.height = self.canvas.winfo_height()
-
 
         if self.cfg["standardDir"]:
             self.loadFromJson(self.cfg["standardDir"])
@@ -86,6 +88,7 @@ class ControlPage(Page):
         self.cfg["gleisColor"] = ["#00ff00", "#ff0000"]
         self.cfg["backgroundColor"] = "#ffffff"
         self.cfg["standardDir"] = None
+        self.cfg["enableGrid"] = False
 
 
     def saveView(self):
@@ -105,6 +108,7 @@ class ControlPage(Page):
             self.cfg["gleisColor"] = data["gleisColor"]
             self.cfg["backgroundColor"] = data["backgroundColor"]
             self.cfg["standardDir"] = data["standardDir"]
+            self.cfg["enableGrid"] = data["enableGrid"]
         except:
             self.setDefaultView()
 
@@ -120,6 +124,8 @@ class ControlPage(Page):
         self.cfg["standardDir"] = directory
         self.clearCanvas()
         self.setGrid(gridX=data["dimensions"][0], gridY=data["dimensions"][1])
+        if self.cfg["enableGrid"]:
+            self.grid.display()
         if "lines" in data:
             for line in data["lines"]:
                 x0, y0 = self.grid.getPosition(line[0], line[1])
@@ -175,18 +181,6 @@ class ControlPage(Page):
         for key in self.gleise:
             x, y = self.grid.getPosition(key[0], key[1])
             self.gleise[key].setPosition(x, y)
-    
-
-    def onResize(self, event):
-        self.master.update()
-        width_new = self.master.winfo_width()
-        height_new = self.master.winfo_height()
-        self.canvas.config(width=width_new, height=height_new)
-        self.canvas.scale("all", 0, 0, width_new / self.width, height_new / self.height)
-        self.width = width_new
-        self.height = height_new
-        self.grid.onResize()
-        self.updateControls()
 
 
     def asyncInitWeichen(self):
@@ -278,4 +272,9 @@ class ControlPage(Page):
         self.master.attributes('-fullscreen', self.fullscreen)
         self.fullscreen = not self.fullscreen
 
-
+    def toggleGrid(self):
+        if self.cfg["enableGrid"]:
+            self.grid.delete()
+        else:
+            self.grid.display()
+        self.cfg["enableGrid"] = not self.cfg["enableGrid"]

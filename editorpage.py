@@ -41,7 +41,6 @@ class EditorPage(Page):
 
         self.master.config(menu=self.menu)
 
-
         self.grid.display()
 
         self.width = self.canvas.winfo_width()
