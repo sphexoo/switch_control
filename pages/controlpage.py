@@ -75,7 +75,7 @@ class ControlPage(Page):
             try:
                 self.loadFromJson(self.cfg["standardDir"])
             except FileNotFoundError:
-                print(FileNotFoundError)
+                pass
 
 
     def setDefaultView(self):
