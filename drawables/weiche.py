@@ -3,7 +3,7 @@ import tkinter as tk
 from math import cos, sin, pi, radians
 from time import sleep
 
-from drawable import Drawable
+from drawables import Drawable
 
 
 class Weiche(Drawable):

@@ -1,6 +1,12 @@
 import tkinter as tk
+<<<<<<< Updated upstream
 from editorpage import EditorPage
 from controlpage import ControlPage
+=======
+import serial as ser
+from time import sleep
+from pages import EditorPage, ControlPage
+>>>>>>> Stashed changes
 
 import serial as ser
 from time import sleep
