@@ -1,8 +1,7 @@
 import tkinter as tk
 import serial as ser
 from time import sleep
-from editorpage import EditorPage
-from controlpage import ControlPage
+from pages import EditorPage, ControlPage
 
 
 class PseudoSerial:

@@ -1,5 +1,5 @@
 import tkinter as tk
-from drawable import Drawable
+from drawables import Drawable
 
 class Line(Drawable):
     def __init__(self, canvas, x0, y0, x1, y1, width=30, color="black"):

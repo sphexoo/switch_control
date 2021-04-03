@@ -1,5 +1,5 @@
 import math
-from drawable import Drawable
+from drawables import Drawable
 
 class Grid(Drawable):
     def __init__(self, canvas, gridX=20, gridY=10):

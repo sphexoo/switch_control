@@ -2,11 +2,9 @@ import tkinter as tk
 from tkinter import filedialog, simpledialog
 import json
 from selector import Selector
-from line import Line
-from page import Page
-from grid import Grid
-from gleis import GleisEditor
-from weiche import WeicheEditor, WeichenGroup
+
+from drawables import *
+from pages import Page
 
 
 class EditorPage(Page):

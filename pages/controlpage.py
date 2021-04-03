@@ -4,12 +4,10 @@ from tkinter import colorchooser
 from threading import Thread, active_count
 from time import sleep
 import json
-from grid import Grid
 from selector import Selector
-from line import Line
-from page import Page
-from weiche import Weiche, WeichenGroup
-from gleis import Gleis
+
+from drawables import *
+from pages import Page
 
 
 class ControlPage(Page):
@@ -75,7 +73,10 @@ class ControlPage(Page):
         self.height = self.canvas.winfo_height()
 
         if self.cfg["standardDir"]:
-            self.loadFromJson(self.cfg["standardDir"])
+            try:
+                self.loadFromJson(self.cfg["standardDir"])
+            except FileNotFoundError:
+                print(FileNotFoundError)
 
 
     def setDefaultView(self):

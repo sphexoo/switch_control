@@ -1,5 +1,5 @@
 import tkinter as tk
-from grid import Grid
+from drawables import Grid
 
 
 class Page(tk.Frame):

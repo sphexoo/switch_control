@@ -1,4 +1,4 @@
-from drawable import Drawable
+from drawables import Drawable
 
 class Gleis(Drawable):
     def __init__(self, canvas, x, y, color, groupId, size):
