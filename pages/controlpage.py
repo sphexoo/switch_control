@@ -4,7 +4,6 @@ from tkinter import colorchooser
 from threading import Thread, active_count
 from time import sleep
 import json
-from selector import Selector
 
 from drawables import *
 from pages import Page

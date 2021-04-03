@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, simpledialog
 import json
-from selector import Selector
 
 from drawables import *
 from pages import Page
