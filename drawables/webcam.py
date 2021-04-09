@@ -42,7 +42,6 @@ class Webcam(Drawable):
         while self.isActive:
             _, frame = self.cam.read()
             frame = cv2.resize(frame, dsize=(self.width, self.height), interpolation = cv2.INTER_LINEAR)
-            #frame = cv2.flip(frame, 1)
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
             img = PIL.Image.fromarray(cv2image)
             imgtk = PIL.ImageTk.PhotoImage(image=img)
