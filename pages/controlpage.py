@@ -149,6 +149,12 @@ class ControlPage(Page):
                 for weiche in wg[1]:
                     weichen[tuple(weiche[0])] = weiche[1]
                 self.weichengroups[tuple(wg[0])].setWeichen(weichen)
+        if "webcams" in data:
+            for webcam in data["webcams"]:
+                x0, y0 = self.grid.getPosition(webcam[0], webcam[1])
+                x1, y1 = self.grid.getPosition(webcam[2], webcam[3])
+                portId = webcam[4]
+                self.webcams[((webcam[0], webcam[1]), (webcam[2], webcam[3]))] = Webcam(self.canvas, x0, y0, x1, y1, portId)
         self.updateControls()
 
     def onMousePressed(self, event):
@@ -181,6 +187,10 @@ class ControlPage(Page):
         for key in self.gleise:
             x, y = self.grid.getPosition(key[0], key[1])
             self.gleise[key].setPosition(x, y)
+        for key0, key1 in self.webcams:
+            x0, y0 = self.grid.getPosition(key0[0], key0[1])
+            x1, y1 = self.grid.getPosition(key1[0], key1[1])
+            self.webcams[(key0, key1)].setPosition(x0, y0, x1, y1)
 
 
     def asyncInitWeichen(self):

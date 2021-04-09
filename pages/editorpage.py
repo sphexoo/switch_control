@@ -34,6 +34,7 @@ class EditorPage(Page):
         self.menu_insert.add_command(label="Weiche", command=lambda: self.setCurrentItem("Weiche"))
         self.menu_insert.add_command(label="Weichengruppe", command=lambda: self.setCurrentItem("Weichengruppe"))
         self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
+        self.menu_insert.add_command(label="Webcam", command=lambda: self.setCurrentItem("Webcam"))
         self.menu.add_cascade(label="Einfügen", menu=self.menu_insert)
 
         self.master.config(menu=self.menu)
@@ -55,7 +56,7 @@ class EditorPage(Page):
 
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[], "weichengroups":[]}
+        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[], "weichengroups":[], "webcams":[]}
         for key in self.lines:
             data["lines"].append([key[0][0], key[0][1], key[1][0], key[1][1]])
         for key in self.weichen:
@@ -72,6 +73,9 @@ class EditorPage(Page):
             for key, value in weichen_dict.items():
                 weichen.append([key, value])
             data["weichengroups"].append([gleis, weichen])
+        for key in self.webcams:
+            portId = self.webcams[key].getPortId()
+            data["webcams"].append([key[0][0], key[0][1], key[1][0], key[1][1], portId])
 
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
@@ -109,6 +113,12 @@ class EditorPage(Page):
                 for weiche in wg[1]:
                     weichen[tuple(weiche[0])] = weiche[1]
                 self.weichengroups[tuple(wg[0])].setWeichen(weichen)
+        if "webcams" in data:
+            for webcam in data["webcams"]:
+                x0, y0 = self.grid.getPosition(webcam[0], webcam[1])
+                x1, y1 = self.grid.getPosition(webcam[2], webcam[3])
+                portId = webcam[4]
+                self.webcams[((webcam[0], webcam[1]), (webcam[2], webcam[3]))] = WebcamEditor(self.canvas, x0, y0, x1, y1, portId)
 
 
     def onMousePressed(self, event):
@@ -125,6 +135,8 @@ class EditorPage(Page):
             self.handleGleis(event)
         elif self.current_item == "Weichengruppe":
             self.handleWeichengruppe(event)
+        elif self.current_item == "Webcam":
+            self.handleWebcam(event)
     
 
     def onKeyPressed(self, event):
@@ -170,6 +182,14 @@ class EditorPage(Page):
             if (gridX, gridY) in self.weichengroups:
                 self.weichengroups[(gridX, gridY)].delete()
                 del self.weichengroups[(gridX, gridY)]
+        elif self.current_item == "Webcam":
+            keys_to_delete = []
+            for key in self.webcams:
+                if (key[0] == (gridX, gridY) or key[1] == (gridX, gridY)):
+                    keys_to_delete.append(key)
+            for key in keys_to_delete:
+                self.webcams[key].delete()
+                del self.webcams[key]
 
 
     def handleLinie(self, event):
@@ -279,6 +299,41 @@ class EditorPage(Page):
             self.selector1.hide()
             self.selector2.hide()
     
+
+    def handleWebcam(self, event):
+        gridX, gridY = self.grid.getGridPosition(event.x, event.y)
+        if event.num == 1:
+            isWebcam = False
+            for key1, key2 in self.webcams:
+                if key1 == (gridX, gridY):
+                    isWebcam = True
+                    key = (key1, key2)
+                    break
+            if isWebcam:
+                user_input = simpledialog.askstring("Webcam", "Port [0, 1, 2, ...]")
+                try:
+                    portId = int(user_input)
+                except:
+                    portId = 0
+                self.webcams[key].setPortId(portId)
+                self.selector1.hide()
+                self.selector2.hide()
+            elif not self.selector2.isActive():
+                x, y = self.grid.getPosition(gridX, gridY)
+                self.selector2.setPosition(x, y)
+            elif self.selector1.isActive() and self.selector2.isActive():
+                x0, y0 = self.selector1.getPosition()
+                x1, y1 = self.selector2.getPosition()
+                gx0, gy0 = self.grid.getGridPosition(x0, y0)
+                gx1, gy1 = self.grid.getGridPosition(x1, y1)
+                if not (((gx0, gy0), (gx1, gy1)) in self.webcams or ((gx1, gy1), (gx0, gy0)) in self.webcams):
+                    self.webcams[((gx0, gy0), (gx1, gy1))] = WebcamEditor(self.canvas, x0, y0, x1, y1)
+                self.selector1.hide()
+                self.selector2.hide()
+        elif event.num == 3:
+            self.selector1.hide()
+            self.selector2.hide()
+
 
     def setGrid(self, gridX=None, gridY=None):
         if not gridX:
