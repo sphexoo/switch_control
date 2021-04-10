@@ -29,10 +29,8 @@ class Webcam(Drawable):
 
     def init(self):
         self.cam = cv2.VideoCapture(self.portId, cv2.CAP_DSHOW)
-        #self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-        #self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 10)
-        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 10)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
     def display(self):
         self.delete()
