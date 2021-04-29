@@ -39,13 +39,13 @@ class Webcam(Drawable):
     def update(self):
         while self.isActive:
             _, frame = self.cam.read()
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
             frame = cv2.resize(frame, dsize=(self.width, self.height), interpolation = cv2.INTER_LINEAR)
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
             img = PIL.Image.fromarray(cv2image)
             imgtk = PIL.ImageTk.PhotoImage(image=img)
             self.label.configure(image=imgtk)
             self.label.imgtk = imgtk
-            sleep(0.01)
 
     def asyncUpdate(self):
         thread = Thread(target=self.update, daemon=True)

@@ -1,4 +1,5 @@
 const int BUF_SIZE = 4;
+const int STATUS_LED = 12;
 int src;
 int dst;
 char buf[BUF_SIZE + 1] = {'0', '0', '0', '0', '\0'};
@@ -24,7 +25,25 @@ void setup() {
   pinMode(36, OUTPUT);
   pinMode(37, OUTPUT);
 
+  pinMode(38, OUTPUT);
+  pinMode(39, OUTPUT);
+  pinMode(40, OUTPUT);
+  pinMode(41, OUTPUT);
+  pinMode(42, OUTPUT);
+  pinMode(43, OUTPUT);
+  pinMode(44, OUTPUT);
+  pinMode(45, OUTPUT);
+
+  pinMode(46, OUTPUT);
+  pinMode(47, OUTPUT);
+  pinMode(48, OUTPUT);
+  pinMode(49, OUTPUT);
   pinMode(50, OUTPUT);
+  pinMode(51, OUTPUT);
+  pinMode(52, OUTPUT);
+  pinMode(53, OUTPUT);
+  
+  pinMode(STATUS_LED, OUTPUT);
 
   digitalWrite(22, HIGH);
   digitalWrite(23, HIGH);
@@ -44,7 +63,25 @@ void setup() {
   digitalWrite(36, HIGH);
   digitalWrite(37, HIGH);
 
-  digitalWrite(50, LOW); // Status LED
+  digitalWrite(38, HIGH);
+  digitalWrite(39, HIGH);
+  digitalWrite(40, HIGH);
+  digitalWrite(41, HIGH);
+  digitalWrite(42, HIGH);
+  digitalWrite(43, HIGH);
+  digitalWrite(44, HIGH);
+  digitalWrite(45, HIGH);
+
+  digitalWrite(46, HIGH);
+  digitalWrite(47, HIGH);
+  digitalWrite(48, HIGH);
+  digitalWrite(49, HIGH);
+  digitalWrite(50, HIGH);
+  digitalWrite(51, HIGH);
+  digitalWrite(52, HIGH);
+  digitalWrite(53, HIGH);
+
+  digitalWrite(STATUS_LED, LOW); // Status LED
 
   Serial.begin(9600);
 }
@@ -118,7 +155,7 @@ void checkStatus()
   cnt++;
   if (cnt == 20)
   {
-    digitalWrite(50, HIGH);
+    digitalWrite(STATUS_LED, HIGH);
   }
   else if (cnt == 40)
   {
@@ -128,7 +165,7 @@ void checkStatus()
       delay(1000);
       Serial.begin(9600);
     }
-    digitalWrite(50, LOW);
+    digitalWrite(STATUS_LED, LOW);
     cnt = 0;
   }
 }
