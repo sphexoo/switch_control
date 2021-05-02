@@ -31,10 +31,13 @@ class Weiche(Drawable):
         self.display()
 
     def setState(self, state):
+        """returns True if state has changed, returns False otherwise"""
         if self.state != state:
             self.state = state
             self.sendSerial()
             self.display()
+            return True
+        return False
     
     def setWidth(self, width):
         self.width = width

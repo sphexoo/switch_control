@@ -208,8 +208,9 @@ class ControlPage(Page):
 
     def setWeichen(self, keys_and_states):
         for key in keys_and_states:
-            self.weichen[key].setState(keys_and_states[key])
-            sleep(0.1)
+            stateChanged = self.weichen[key].setState(keys_and_states[key])
+            if stateChanged:
+                sleep(0.1)
 
 
     def setLineWidth(self):
