@@ -35,7 +35,7 @@ class EditorPage(Page):
         self.menu_insert.add_command(label="Weichengruppe", command=lambda: self.setCurrentItem("Weichengruppe"))
         self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
         self.menu_insert.add_command(label="Webcam", command=lambda: self.setCurrentItem("Webcam"))
-        self.menu.add_cascade(label="Einfügen", menu=self.menu_insert)
+        self.menu.add_cascade(label="Einfügen (Linie)", menu=self.menu_insert)
 
         self.master.config(menu=self.menu)
 
@@ -52,6 +52,7 @@ class EditorPage(Page):
         self.selector1.hide()
         self.selector2.hide()
         self.current_item = item
+        self.menu.entryconfig(3, label="Einfügen (" + self.current_item + ")")
 
 
     def saveToJson(self):
