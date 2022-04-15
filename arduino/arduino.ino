@@ -142,10 +142,10 @@ void process()
 
 void toggle(int src, int dst)
 {
-  delay(25);
+  //delay(75);
   digitalWrite(src, LOW);
   digitalWrite(dst, LOW);
-  delay(50);
+  delay(100);
   digitalWrite(src, HIGH);
   digitalWrite(dst, HIGH);
 }

@@ -36,6 +36,7 @@ class Weiche(Drawable):
             self.state = state
             self.sendSerial()
             self.display()
+            sleep(0.2)
             return True
         return False
     
@@ -51,6 +52,7 @@ class Weiche(Drawable):
         self.state = 1
         self.sendSerial()
         self.display()
+        sleep(0.2)
     
     def sendSerial(self):
         data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
