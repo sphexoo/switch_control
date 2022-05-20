@@ -21,7 +21,9 @@ class Webcam(Drawable):
         self.init()
         self.display()
         self.isActive = True
+        self.frames = 0
         self.asyncUpdate()
+        #self.asyncPrint()
     
     def __del__(self):
         self.isActive = False
@@ -29,8 +31,8 @@ class Webcam(Drawable):
 
     def init(self):
         self.cam = cv2.VideoCapture(self.portId, cv2.CAP_DSHOW)
-        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     def display(self):
         self.delete()
@@ -46,11 +48,21 @@ class Webcam(Drawable):
             imgtk = PIL.ImageTk.PhotoImage(image=img)
             self.label.configure(image=imgtk)
             self.label.imgtk = imgtk
+            self.frames += 1
+    
+    def printFrames(self):
+        while self.isActive:
+            sleep(1)
+            print("FPS: " + str(self.frames))
+            self.frames = 0
 
     def asyncUpdate(self):
         thread = Thread(target=self.update, daemon=True)
         thread.start()
 
+    def asyncPrint(self):
+        thread = Thread(target=self.printFrames, daemon=True)
+        thread.start()
     
     def setPosition(self, x0, y0, x1, y1):
         self.x = x0

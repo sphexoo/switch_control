@@ -145,7 +145,7 @@ void toggle(int src, int dst)
   //delay(75);
   digitalWrite(src, LOW);
   digitalWrite(dst, LOW);
-  delay(100);
+  delay(50);
   digitalWrite(src, HIGH);
   digitalWrite(dst, HIGH);
 }
