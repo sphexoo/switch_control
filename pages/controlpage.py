@@ -62,6 +62,12 @@ class ControlPage(Page):
         self.menu_view_background.add_command(label="Farbe", command=self.setBackgroundColor)
         self.menu_view.add_cascade(label="Hintergrund", menu=self.menu_view_background)
 
+        self.menu_view_button = tk.Menu(self.menu_view, tearoff=False)
+        self.menu_view_button.add_command(label="Größe", command=self.setButtonSize)
+        self.menu_view_button.add_command(label="Farbe EIN", command=self.setButtonColorOn)
+        self.menu_view_button.add_command(label="Farbe AUS", command=self.setButtonColorOff)
+        self.menu_view.add_cascade(label="Buttons", menu=self.menu_view_button)
+
         self.menu.add_cascade(label="Ansicht", menu=self.menu_view)
 
         self.master.config(menu=self.menu)
@@ -85,7 +91,11 @@ class ControlPage(Page):
         self.cfg["weicheLength"] = 20
         self.cfg["weicheColor"] = "#ff0000"
         self.cfg["gleisSize"] = 10
-        self.cfg["gleisColor"] = ["#00ff00", "#ff0000"]
+        self.cfg["gleisColorOn"] = "#00ff00"
+        self.cfg["gleisColorOff"] = "#ff0000"
+        self.cfg["buttonSize"] = 10
+        self.cfg["buttonColorOn"] = "#00ff00"
+        self.cfg["buttonColorOff"] = "#ff0000"
         self.cfg["backgroundColor"] = "#ffffff"
         self.cfg["standardDir"] = None
         self.cfg["enableGrid"] = False
@@ -105,7 +115,11 @@ class ControlPage(Page):
             self.cfg["weicheLength"] = data["weicheLength"]
             self.cfg["weicheColor"] = data["weicheColor"]
             self.cfg["gleisSize"] = data["gleisSize"]
-            self.cfg["gleisColor"] = data["gleisColor"]
+            self.cfg["gleisColorOn"] = data["gleisColorOn"]
+            self.cfg["gleisColorOff"] = data["gleisColorOff"]
+            self.cfg["buttonSize"] = data["buttonSize"]
+            self.cfg["buttonColorOn"] = data["buttonColorOn"]
+            self.cfg["buttonColorOff"] = data["buttonColorOff"]
             self.cfg["backgroundColor"] = data["backgroundColor"]
             self.cfg["standardDir"] = data["standardDir"]
             self.cfg["enableGrid"] = data["enableGrid"]
@@ -141,7 +155,7 @@ class ControlPage(Page):
         if "gleise" in data:
             for gleis in data["gleise"]:
                 x, y = self.grid.getPosition(gleis[0], gleis[1])
-                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y, self.cfg["gleisColor"],  gleis[2], self.cfg["gleisSize"])
+                self.gleise[(gleis[0], gleis[1])] = Gleis(self.canvas, x, y, [self.cfg["gleisColorOn"], self.cfg["gleisColorOff"]],  gleis[2], self.cfg["gleisSize"])
         if "weichengroups" in data:
             for wg in data["weichengroups"]:
                 self.weichengroups[tuple(wg[0])] = WeichenGroup(self.canvas, self.grid, tuple(wg[0]))
@@ -155,6 +169,12 @@ class ControlPage(Page):
                 x1, y1 = self.grid.getPosition(webcam[2], webcam[3])
                 portId = webcam[4]
                 self.webcams[((webcam[0], webcam[1]), (webcam[2], webcam[3]))] = Webcam(self.canvas, x0, y0, x1, y1, portId)
+        if "buttons" in data:
+            for button in data["buttons"]:
+                x, y = self.grid.getPosition(button[0], button[1])
+                pinId = button[2]
+                label = button[3]
+                self.buttons[button[0], button[1]] = Button(self.canvas, x, y, [self.cfg["buttonColorOn"], self.cfg["buttonColorOff"]], self.cfg["buttonSize"], pinId, label, self.serial)
         self.updateControls()
 
     def onMousePressed(self, event):
@@ -171,6 +191,8 @@ class ControlPage(Page):
                         self.asyncSetWeichen(weichen)
                 elif self.gleise[key].getGroupId() == groupId:
                     self.gleise[key].deactivate()
+        elif (gridX, gridY) in self.buttons:
+            self.buttons[(gridX, gridY)].toggle()
 
     def setGrid(self, gridX=None, gridY=None):
         if not gridX:
@@ -191,6 +213,9 @@ class ControlPage(Page):
             x0, y0 = self.grid.getPosition(key0[0], key0[1])
             x1, y1 = self.grid.getPosition(key1[0], key1[1])
             self.webcams[(key0, key1)].setPosition(x0, y0, x1, y1)
+        for key in self.buttons:
+            x, y = self.grid.getPosition(key[0], key[1])
+            self.buttons[key].setPosition(x, y)
 
 
     def asyncInitWeichen(self):
@@ -272,6 +297,27 @@ class ControlPage(Page):
             self.cfg["gleisColorOff"] = color[1]
             for key in self.gleise:
                 self.gleise[key].setColor(colorOff=self.cfg["gleisColorOff"])
+
+    def setButtonSize(self):
+        ui = simpledialog.askstring("Ansicht", "Buttongröße")
+        if ui and ui.isdigit():
+            self.cfg["buttonSize"] = int(ui)
+            for key in self.buttons:
+                self.buttons[key].setSize(self.cfg["buttonSize"])
+
+    def setButtonColorOn(self):
+        color = colorchooser.askcolor(title ="Farbe auswähen")
+        if color[1]:
+            self.cfg["buttonColorOn"] = color[1]
+            for key in self.buttons:
+                self.buttons[key].setColor(colorOn=self.cfg["buttonColorOn"])
+
+    def setButtonColorOff(self):
+        color = colorchooser.askcolor(title ="Farbe auswähen")
+        if color[1]:
+            self.cfg["buttonColorOff"] = color[1]
+            for key in self.buttons:
+                self.buttons[key].setColor(colorOff=self.cfg["buttonColorOff"])
 
     def setBackgroundColor(self):
         color = colorchooser.askcolor(title ="Farbe auswähen")

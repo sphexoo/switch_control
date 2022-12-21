@@ -5,3 +5,4 @@ from .grid import Grid
 from .line import Line
 from .selector import Selector
 from .webcam import Webcam, WebcamEditor
+from .button import Button, ButtonEditor

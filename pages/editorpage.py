@@ -35,6 +35,7 @@ class EditorPage(Page):
         self.menu_insert.add_command(label="Weichengruppe", command=lambda: self.setCurrentItem("Weichengruppe"))
         self.menu_insert.add_command(label="Gleis", command=lambda: self.setCurrentItem("Gleis"))
         self.menu_insert.add_command(label="Webcam", command=lambda: self.setCurrentItem("Webcam"))
+        self.menu_insert.add_command(label="Button", command=lambda: self.setCurrentItem("Button"))
         self.menu.add_cascade(label="Einfügen (Linie)", menu=self.menu_insert)
 
         self.master.config(menu=self.menu)
@@ -57,7 +58,7 @@ class EditorPage(Page):
 
     def saveToJson(self):
         # saves line data to json file
-        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[], "weichengroups":[], "webcams":[]}
+        data = {"dimensions": [self.grid.getGridX(), self.grid.getGridY()], "lines": [], "weichen": [], "gleise":[], "weichengroups":[], "webcams":[], "buttons":[]}
         for key in self.lines:
             data["lines"].append([key[0][0], key[0][1], key[1][0], key[1][1]])
         for key in self.weichen:
@@ -77,6 +78,10 @@ class EditorPage(Page):
         for key in self.webcams:
             portId = self.webcams[key].getPortId()
             data["webcams"].append([key[0][0], key[0][1], key[1][0], key[1][1], portId])
+        for key in self.buttons:
+            pinId = self.buttons[key].getPinId()
+            label = self.buttons[key].getLabel()
+            data["buttons"].append([key[0], key[1], pinId, label])
 
         directory = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")])
         with open(directory, 'w') as f:
@@ -120,6 +125,12 @@ class EditorPage(Page):
                 x1, y1 = self.grid.getPosition(webcam[2], webcam[3])
                 portId = webcam[4]
                 self.webcams[((webcam[0], webcam[1]), (webcam[2], webcam[3]))] = WebcamEditor(self.canvas, x0, y0, x1, y1, portId)
+        if "buttons" in data:
+            for button in data["buttons"]:
+                x, y = self.grid.getPosition(button[0], button[1])
+                pinId = button[2]
+                label = button[3]
+                self.buttons[(button[0], button[1])] = ButtonEditor(self.canvas, x, y, pinId, label)
 
 
     def onMousePressed(self, event):
@@ -138,6 +149,8 @@ class EditorPage(Page):
             self.handleWeichengruppe(event)
         elif self.current_item == "Webcam":
             self.handleWebcam(event)
+        elif self.current_item == "Button":
+            self.handleButton(event)
     
 
     def onKeyPressed(self, event):
@@ -191,6 +204,14 @@ class EditorPage(Page):
             for key in keys_to_delete:
                 self.webcams[key].delete()
                 del self.webcams[key]
+        elif self.current_item == "Button":
+            keys_to_delete = []
+            for key in self.buttons:
+                if key == (gridX, gridY):
+                    keys_to_delete.append(key)
+            for key in keys_to_delete:
+                self.buttons[key].delete()
+                del self.buttons[key]
 
 
     def handleLinie(self, event):
@@ -335,6 +356,29 @@ class EditorPage(Page):
             self.selector1.hide()
             self.selector2.hide()
 
+    def handleButton(self, event):
+            gridX, gridY = self.grid.getGridPosition(event.x, event.y)
+            if event.num == 1:
+                x, y = self.selector1.getPosition()
+                gridX, gridY = self.grid.getGridPosition(x, y)
+                if (gridX, gridY) in self.buttons:
+                    return
+                self.buttons[(gridX, gridY)] = ButtonEditor(self.canvas, x, y)
+                self.selector1.hide()
+            elif event.num == 3:
+                if (gridX, gridY) in self.buttons:
+                    in0 = simpledialog.askstring("Arduino pin", "Pin ID")
+                    in1 = simpledialog.askstring("Button label", "Label")
+                    try:
+                        pinId = int(in0)
+                        label = in1
+                    except:
+                        pinId = 1
+                        label = "Button"
+                    self.buttons[(gridX, gridY)].updatePinId(pinId)
+                    self.buttons[(gridX, gridY)].updateLabel(label)
+                self.selector1.hide()
+
 
     def setGrid(self, gridX=None, gridY=None):
         if not gridX:
@@ -435,4 +479,8 @@ class EditorPage(Page):
         for key in self.weichengroups:
             self.weichengroups[key].delete()
         self.weichengroups = {}
+        # delete buttons (TODO: make buttons resize with autoscale)
+        for key in self.buttons:
+            self.buttons[key].delete()
+        self.buttons = {}
         

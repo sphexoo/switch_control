@@ -1,5 +1,6 @@
 const int BUF_SIZE = 4;
 const int STATUS_LED = 12;
+const int BUTTON_PIN_START = 25; //TODO: Set to correct pin
 int src;
 int dst;
 char buf[BUF_SIZE + 1] = {'0', '0', '0', '0', '\0'};
@@ -130,7 +131,23 @@ void process()
     src = atoi(from);
     dst = atoi(to);
 
-    toggle(src, dst);
+    if (src == 99) // set single pin
+    {
+      int value = 0;
+      int offset = dst;
+      if (dst >= 10)
+      {
+        value = 1;
+        offset = offset - 10;
+      }
+      int pin = BUTTON_PIN_START + offset; // ten consecutive pins starting at BUTTON_PIN_START can set (if src == 99 --> dst = AB --> A: 0 (off) or 1 (on); B: 0-9 (offset to find actual pin) 
+      
+      set(pin, value);
+    }
+    else // set and unset a pair of pins
+    {
+      toggle(src, dst);
+    }
 
     newData = false;
     for (int i = 0; i < BUF_SIZE; i++)
@@ -148,6 +165,18 @@ void toggle(int src, int dst)
   delay(50);
   digitalWrite(src, HIGH);
   digitalWrite(dst, HIGH);
+}
+
+void set(int pin, int val)
+{
+  if (val)
+  {
+    digitalWrite(pin, HIGH);
+  }
+  else
+  {
+    digitalWrite(pin, LOW);
+  }
 }
 
 void checkStatus()

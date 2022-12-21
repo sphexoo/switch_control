@@ -25,6 +25,7 @@ class Page(tk.Frame):
         self.gleise = {}
         self.weichengroups = {}
         self.webcams = {}
+        self.buttons = {}
         
     def show(self):
         self.master.config(menu=self.menu)
@@ -66,11 +67,14 @@ class Page(tk.Frame):
             self.weichengroups[key].delete()
         for key in self.webcams:
             self.webcams[key].delete()
+        for key in self.buttons:
+            self.buttons[key].delete()
         self.lines = {}
         self.weichen = {}
         self.gleise = {}
         self.weichengroups = {}
         self.webcams = {}
+        self.buttons = {}
     
         self.master.update()
         self.canvas.update()
