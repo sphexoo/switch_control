@@ -42,8 +42,9 @@ class Button(Drawable):
         self.display()
 
     def sendSerial(self):
-        data = 99 * 100 + self.state
+        data = 99 * 100 + self.state * 10 + self.pinId
         out = bytes(str(data), 'ascii')
+        print(f"{data}")
         self.serial.write(out)
 
 

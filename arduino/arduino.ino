@@ -1,6 +1,6 @@
 const int BUF_SIZE = 4;
-const int STATUS_LED = 12;
-const int BUTTON_PIN_START = 25; //TODO: Set to correct pin
+const int STATUS_LED = 13;
+const int BUTTON_PIN_START = 2; //TODO: Set to correct pin
 int src;
 int dst;
 char buf[BUF_SIZE + 1] = {'0', '0', '0', '0', '\0'};
@@ -8,6 +8,17 @@ boolean newData = true;
 int cnt = 0;
 
 void setup() {
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  
   pinMode(22, OUTPUT);
   pinMode(23, OUTPUT);
   pinMode(24, OUTPUT);
@@ -45,6 +56,17 @@ void setup() {
   pinMode(53, OUTPUT);
   
   pinMode(STATUS_LED, OUTPUT);
+
+  pinMode(2, HIGH);
+  pinMode(3, HIGH);
+  pinMode(4, HIGH);
+  pinMode(5, HIGH);
+  pinMode(6, HIGH);
+  pinMode(7, HIGH);
+  pinMode(8, HIGH);
+  pinMode(9, HIGH);
+  pinMode(10, HIGH);
+  pinMode(11, HIGH);
 
   digitalWrite(22, HIGH);
   digitalWrite(23, HIGH);

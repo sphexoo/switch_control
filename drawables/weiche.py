@@ -57,7 +57,7 @@ class Weiche(Drawable):
     def sendSerial(self):
         data = self.switches[self.state][0] * 100 + self.switches[self.state][1]
         out = bytes(str(data), 'ascii')
-        #print(f"{data}")
+        print(f"{data}")
         self.serial.write(out)
 
     def setSwitches(self, sw):
